@@ -1,103 +1,95 @@
 document.addEventListener('DOMContentLoaded', function() {
-            const hamburger = document.getElementById('hamburger');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const profile = document.getElementById('profile');
-            const profileDropdown = document.getElementById('profileDropdown');
-            const searchInput = document.getElementById('searchInput');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const dashboardBtn = document.getElementById('dashboardBtn');
-            
-            // Toggle sidebar
-            hamburger.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                mainContent.classList.toggle('sidebar-open');
-                
-                // Change hamburger icon
-                const icon = hamburger.querySelector('i');
-                if (sidebar.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-            
-            // Toggle profile dropdown
-            profile.addEventListener('click', function() {
-                profileDropdown.classList.toggle('active');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
-                    profileDropdown.classList.remove('active');
-                }
-            });
-            
-            // Close sidebar when clicking on a link (for mobile)
-            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 992) {
-                        sidebar.classList.remove('active');
-                        mainContent.classList.remove('sidebar-open');
-                        hamburger.querySelector('i').classList.remove('fa-times');
-                        hamburger.querySelector('i').classList.add('fa-bars');
-                    }
-                });
-            });
-            
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                // This would filter the ranking data when populated
-                console.log("Searching for:", this.value);
-            });
-            
-            // Refresh button functionality
-            refreshBtn.addEventListener('click', function() {
-                // Add loading animation
-                const originalText = refreshBtn.innerHTML;
-                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-                refreshBtn.disabled = true;
-                
-                // Simulate API call
-                setTimeout(() => {
-                    refreshBtn.innerHTML = originalText;
-                    refreshBtn.disabled = false;
-                    alert('Rankings updated successfully!');
-                }, 1500);
-            });
-            
-            // Dashboard button functionality
-            dashboardBtn.addEventListener('click', function() {
-                window.location.href = 'student-dashboard.html';
-            });
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const profile = document.getElementById('profile');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const searchInput = document.getElementById('searchInput');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const dashboardBtn = document.getElementById('dashboardBtn');
 
-            // Example of how to populate data (for demonstration)
-            // In a real application, you would fetch this data from your backend
-            function populateRankingData() {
-                // This is just an example - replace with actual data from your backend
-                const rankingData = {
-                    stats: {
-                        totalStudents: 42,
-                        yourRank: 3,
-                        yourPercentage: 91.8,
-                        yourGrade: "A"
-                    },
-                    rankings: [
-                        { rank: 1, name: "Sarah Mitchell", rollNo: "S20230012", totalMarks: 492, percentage: 98.4, grade: "A+" },
-                        { rank: 2, name: "Ryan Johnson", rollNo: "S20230028", totalMarks: 485, percentage: 97.0, grade: "A+" },
-                        { rank: 3, name: "Alex Johnson", rollNo: "S20230045", totalMarks: 459, percentage: 91.8, grade: "A" },
-                        // ... more students
-                    ]
-                };
+    // Sidebar toggle
+    hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        mainContent.classList.toggle('sidebar-open');
+        const icon = hamburger.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
+    });
 
-                // This would be implemented when you have real data
-                console.log("Ranking data ready to be populated:", rankingData);
-            }
+    // Profile dropdown toggle
+    profile.addEventListener('click', () => profileDropdown.classList.toggle('active'));
+    document.addEventListener('click', (e) => {
+        if (!profile.contains(e.target) && !profileDropdown.contains(e.target)) {
+            profileDropdown.classList.remove('active');
+        }
+    });
 
-            // Call this function when your data is ready
-            // populateRankingData();
+    // Search filter
+    searchInput.addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('.rank-row').forEach(row => {
+            const name = row.querySelector('.student-name').textContent.toLowerCase();
+            const roll = row.querySelector('.student-roll').textContent.toLowerCase();
+            row.style.display = name.includes(term) || roll.includes(term) ? '' : 'none';
         });
+    });
+
+    // Refresh
+    refreshBtn.addEventListener('click', async function() {
+        const old = refreshBtn.innerHTML;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        refreshBtn.disabled = true;
+        await loadRankingData();
+        refreshBtn.innerHTML = old;
+        refreshBtn.disabled = false;
+        alert('✅ Rankings updated!');
+    });
+
+    // Dashboard redirect
+    dashboardBtn.addEventListener('click', () => {
+        window.location.href = 'Student_DashBoard.html';
+    });
+
+    // Fetch ranking data from backend
+    async function loadRankingData() {
+        try {
+            const res = await fetch('http://localhost:5000/api/rankings');
+            if (!res.ok) throw new Error('Failed to load rankings');
+            const data = await res.json();
+
+            const yourId = data.stats.yourId;
+            const rankings = data.rankings;
+
+            // Find student's data
+            const yourData = rankings.find(s => s.rollNo === yourId);
+            const yourRank = yourData ? yourData.rank : '-';
+
+            // Display stats
+            document.getElementById('totalStudents').textContent = data.stats.totalStudents;
+            document.getElementById('yourRank').textContent = yourRank;
+            document.getElementById('yourPercentage').textContent = yourData ? yourData.percentage + '%' : '-';
+            document.getElementById('yourGrade').textContent = yourData ? yourData.grade : '-';
+
+            // Display table
+            const tbody = document.querySelector('.ranking-table tbody');
+            tbody.innerHTML = rankings.map(r => `
+                <tr class="rank-row ${r.rollNo === yourId ? 'highlight' : ''}">
+                    <td>${r.rank}</td>
+                    <td class="student-name">${r.name}</td>
+                    <td class="student-roll">${r.rollNo}</td>
+                    <td>${r.totalMarks}</td>
+                    <td>${r.percentage}%</td>
+                    <td>${r.grade}</td>
+                </tr>
+            `).join('');
+
+        } catch (err) {
+            console.error(err);
+            document.querySelector('.ranking-container').innerHTML =
+                `<p style="color:red;">⚠️ Error fetching ranking data. Check your backend.</p>`;
+        }
+    }
+
+    loadRankingData();
+});

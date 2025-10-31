@@ -1,0 +1,21 @@
+{
+  "student": {
+    "name": "Alex Johnson",
+    "rollNo": "S20230045",
+    "class": "10th Grade",
+    "section": "A"
+  },
+  "subjects": [
+    { "name": "Mathematics", "marks": 92, "grade": "A+" },
+    { "name": "Science", "marks": 88, "grade": "A" },
+    { "name": "English", "marks": 85, "grade": "A" },
+    { "name": "Social Studies", "marks": 89, "grade": "A" },
+    { "name": "Computer", "marks": 95, "grade": "A+" }
+  ],
+  "summary": {
+    "totalMarks": 449,
+    "percentage": 89.8,
+    "grade": "A",
+    "status": "Pass"
+  }
+}

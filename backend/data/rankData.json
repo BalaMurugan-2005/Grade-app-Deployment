@@ -1,0 +1,18 @@
+{
+  "stats": {
+    "yourId": "S20230045",
+    "totalStudents": 10
+  },
+  "rankings": [
+    { "rank": 1, "name": "Arjun Kumar", "rollNo": "S20230010", "totalMarks": 492, "percentage": 98.4, "grade": "A+" },
+    { "rank": 2, "name": "Kavya Raj", "rollNo": "S20230018", "totalMarks": 485, "percentage": 97.0, "grade": "A+" },
+    { "rank": 3, "name": "Bala Murugan", "rollNo": "S20230045", "totalMarks": 459, "percentage": 91.8, "grade": "A" },
+    { "rank": 4, "name": "Karthik Kumar", "rollNo": "S20230030", "totalMarks": 445, "percentage": 89.0, "grade": "B+" },
+    { "rank": 5, "name": "Priya Devi", "rollNo": "S20230041", "totalMarks": 438, "percentage": 87.6, "grade": "B+" },
+    { "rank": 6, "name": "Suresh", "rollNo": "S20230055", "totalMarks": 421, "percentage": 84.2, "grade": "B" },
+    { "rank": 7, "name": "Harini", "rollNo": "S20230062", "totalMarks": 414, "percentage": 82.8, "grade": "B" },
+    { "rank": 8, "name": "Manoj", "rollNo": "S20230070", "totalMarks": 400, "percentage": 80.0, "grade": "B" },
+    { "rank": 9, "name": "Devi Lakshmi", "rollNo": "S20230081", "totalMarks": 395, "percentage": 79.0, "grade": "C+" },
+    { "rank": 10, "name": "Kiran", "rollNo": "S20230090", "totalMarks": 380, "percentage": 76.0, "grade": "C+" }
+  ]
+}

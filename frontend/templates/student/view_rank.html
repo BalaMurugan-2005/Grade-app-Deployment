@@ -44,32 +44,37 @@
         <h1 class="page-title"><i class="fas fa-trophy"></i> Class Leaderboard</h1>
         
         <!-- Stats Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="data-placeholder">
-                    <i class="fas fa-users"></i>
-                    <p>Total Students</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="data-placeholder">
-                    <i class="fas fa-chart-line"></i>
-                    <p>Your Rank</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="data-placeholder">
-                    <i class="fas fa-percentage"></i>
-                    <p>Your Percentage</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="data-placeholder">
-                    <i class="fas fa-medal"></i>
-                    <p>Your Grade</p>
-                </div>
-            </div>
+        <!-- Stats Cards -->
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-info">
+            <h3 id="totalStudents">0</h3>
+            <p>Total Students</p>
         </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-info">
+            <h3 id="yourRank">-</h3>
+            <p>Your Rank</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+        <div class="stat-info">
+            <h3 id="yourPercentage">0%</h3>
+            <p>Your Percentage</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-medal"></i></div>
+        <div class="stat-info">
+            <h3 id="yourGrade">-</h3>
+            <p>Your Grade</p>
+        </div>
+    </div>
+</div>
 
         <!-- Search and Actions -->
         <div class="search-container">
@@ -88,12 +93,25 @@
         </div>
 
         <!-- Ranking Table -->
-        <div class="ranking-container">
-            <div class="data-placeholder">
-                <i class="fas fa-trophy"></i>
-                <p>Class ranking data will appear here</p>
-            </div>
-        </div>
+        <!-- Ranking Table -->
+<div class="ranking-container">
+    <table class="ranking-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Roll No</th>
+                <th>Total Marks</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+</div>
+
     </main>
 
     <script src="/frontend/js/student/view_rank.js"></script>
