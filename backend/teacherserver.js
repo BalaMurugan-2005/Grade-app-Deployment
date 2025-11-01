@@ -7,11 +7,17 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+
+// ✅ Allow requests from Live Server and all origins for development
+app.use(cors({
+    origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:5001'],
+    credentials: true
+}));
+
 app.use(express.json());
 
-// ✅ Serve frontend files
-app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
+// ✅ Serve ALL static files from frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ===============================
 // 📁 File Paths Configuration
@@ -25,9 +31,50 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// Initialize sample data if files don't exist
+initializeSampleData();
+
 // ===============================
 // 🔧 Utility Functions
 // ===============================
+function initializeSampleData() {
+    // Sample teacher data
+    const teacherData = [
+        {
+            id: "TCH-7284",
+            name: "Prof. Sarah Johnson",
+            subject: "Mathematics",
+            email: "sarah.johnson@school.edu",
+            class: "10A"
+        }
+    ];
+
+    // Sample student data
+    const studentData = [
+        { id: "S001", name: "Rahul Kumar", rollNo: "S001", class: "10A", marks: { tamil: 85, english: 78, maths: 92, science: 88, social: 80 } },
+        { id: "S002", name: "Priya Sharma", rollNo: "S002", class: "10A", marks: { tamil: 90, english: 85, maths: 95, science: 92, social: 88 } },
+        { id: "S003", name: "Amit Patel", rollNo: "S003", class: "10A", marks: null },
+        { id: "S004", name: "Sneha Reddy", rollNo: "S004", class: "10A", marks: null },
+        { id: "S005", name: "Vikram Singh", rollNo: "S005", class: "10A", marks: { tamil: 75, english: 82, maths: 78, science: 80, social: 85 } },
+        { id: "S006", name: "Anjali Gupta", rollNo: "S006", class: "10A", marks: null },
+        { id: "S007", name: "Rajesh Kumar", rollNo: "S007", class: "10A", marks: { tamil: 88, english: 90, maths: 85, science: 87, social: 82 } },
+        { id: "S008", name: "Pooja Mehta", rollNo: "S008", class: "10A", marks: null },
+        { id: "S009", name: "Sanjay Verma", rollNo: "S009", class: "10A", marks: { tamil: 82, english: 78, maths: 85, science: 80, social: 79 } },
+        { id: "S010", name: "Neha Singh", rollNo: "S010", class: "10A", marks: null }
+    ];
+
+    // Write sample data if files don't exist
+    if (!fs.existsSync(teacherDataPath)) {
+        fs.writeFileSync(teacherDataPath, JSON.stringify(teacherData, null, 2));
+        console.log('✅ Sample teacher data created');
+    }
+    
+    if (!fs.existsSync(marksDataPath)) {
+        fs.writeFileSync(marksDataPath, JSON.stringify(studentData, null, 2));
+        console.log('✅ Sample student data created');
+    }
+}
+
 const readJSONFile = (filePath) => {
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf-8', (err, data) => {
@@ -308,7 +355,7 @@ function calculateGrade(average) {
 }
 
 // ===============================
-// 🏠 Serve HTML Pages
+// 🏠 Serve HTML Pages - FIXED ROUTES
 // ===============================
 
 // Serve Teacher Dashboard
@@ -326,19 +373,41 @@ app.get('/teacher/rankings', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_rank.html'));
 });
 
+// Root route - redirect to dashboard
+app.get('/', (req, res) => {
+    res.redirect('/teacher/dashboard');
+});
+
+// Handle 404 - Page not found
+app.use((req, res) => {
+    res.status(404).send(`
+        <html>
+            <head><title>404 - Page Not Found</title></head>
+            <body>
+                <h1>404 - Page Not Found</h1>
+                <p>The page you are looking for does not exist.</p>
+                <p><a href="/teacher/dashboard">Go to Dashboard</a></p>
+            </body>
+        </html>
+    `);
+});
+
 // ===============================
 // 🚀 Start Server
 // ===============================
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`✅ Consolidated Teacher server running on http://localhost:${PORT}`);
-    console.log(`📊 API endpoints available:`);
-    console.log(`   GET  /api/teacher/:id`);
-    console.log(`   PUT  /api/teacher/:id`);
-    console.log(`   GET  /api/students`);
-    console.log(`   GET  /api/student/:id`);
-    console.log(`   POST /api/student/:id/marks`);
-    console.log(`   GET  /api/rankings`);
-    console.log(`   GET  /api/statistics`);
-    console.log(`   GET  /api/export/rankings`);
+    console.log(`\n✅ Teacher Server running on http://localhost:${PORT}`);
+    console.log(`\n📚 Available Pages:`);
+    console.log(`   📊 Dashboard: http://localhost:${PORT}/teacher/dashboard`);
+    console.log(`   ✏️  Marks Entry: http://localhost:${PORT}/teacher/marks`);
+    console.log(`   🏆 Rankings: http://localhost:${PORT}/teacher/rankings`);
+    console.log(`\n🔗 API Endpoints:`);
+    console.log(`   👩‍🏫 GET  /api/teacher/:id`);
+    console.log(`   📝 POST /api/student/:id/marks`);
+    console.log(`   📈 GET  /api/rankings`);
+    console.log(`   📊 GET  /api/statistics`);
+    console.log(`   📤 GET  /api/export/rankings`);
+    console.log(`\n🌐 Live Server Access:`);
+    console.log(`   Use Live Server on port 5500 with API calls to port 5001`);
 });
