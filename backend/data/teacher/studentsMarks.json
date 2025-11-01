@@ -1,0 +1,30 @@
+[
+  {
+    "id": "S001",
+    "name": "Rahul Kumar",
+    "rollNo": "S001",
+    "class": "10A",
+    "marks": { "tamil": 85, "english": 78, "maths": 92, "science": 88, "social": 80 }
+  },
+  {
+    "id": "S002",
+    "name": "Priya Sharma",
+    "rollNo": "S002",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S003",
+    "name": "Amit Patel",
+    "rollNo": "S003",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S004",
+    "name": "Sneha Reddy",
+    "rollNo": "S004",
+    "class": "10A",
+    "marks": null
+  }
+]

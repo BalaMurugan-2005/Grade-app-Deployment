@@ -1,0 +1,14 @@
+[
+  {
+    "id": "TCH-7284",
+    "name": "Prof. Sarah Johnson",
+    "subject": "Mathematics",
+    "email": "sarah.johnson@grademaster.edu"
+  },
+  {
+    "id": "TCH-7285",
+    "name": "Mr. David Lee",
+    "subject": "Science",
+    "email": "david.lee@grademaster.edu"
+  }
+]
