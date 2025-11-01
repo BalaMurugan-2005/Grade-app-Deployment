@@ -1,3 +1,6 @@
+// ✅ Use absolute URL for API calls
+const API_BASE_URL = 'http://localhost:5001';
+
 // DOM Elements
 const hamburger = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar');
@@ -56,7 +59,7 @@ async function initializeApp() {
 async function loadStudentsFromAPI() {
     try {
         showAlert('Loading student data...', 'success');
-        const response = await fetch('/api/students');
+        const response = await fetch(`${API_BASE_URL}/api/students`);
         if (!response.ok) throw new Error('Failed to fetch students');
         studentsData = await response.json();
         loadStudents();
@@ -71,7 +74,7 @@ async function loadStudentsFromAPI() {
 
 async function submitMarksToAPI(studentId, marks) {
     try {
-        const response = await fetch(`/api/student/${studentId}/marks`, {
+        const response = await fetch(`${API_BASE_URL}/api/student/${studentId}/marks`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

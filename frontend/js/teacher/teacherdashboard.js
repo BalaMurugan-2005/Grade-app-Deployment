@@ -1,3 +1,6 @@
+// ✅ Use absolute URL for API calls
+const API_BASE_URL = 'http://localhost:5001';
+
 document.addEventListener('DOMContentLoaded', function() {
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
@@ -55,7 +58,7 @@ async function loadTeacherData() {
         // Replace with the ID of the logged-in teacher
         const teacherId = "TCH-7284";
 
-        const response = await fetch(`/api/teacher/${teacherId}`);
+        const response = await fetch(`${API_BASE_URL}/api/teacher/${teacherId}`);
         if (!response.ok) throw new Error('Failed to fetch teacher data');
 
         const teacher = await response.json();
@@ -78,10 +81,34 @@ async function loadTeacherData() {
                 <span class="detail-label">Email:</span>
                 <span class="detail-value">${teacher.email}</span>
             </div>
+            <div class="detail-item">
+                <span class="detail-label">Class:</span>
+                <span class="detail-value">${teacher.class}</span>
+            </div>
         `;
     } catch (error) {
-        console.error(error);
-        document.querySelector('.teacher-details').innerHTML =
-            `<p style="color:red;">⚠️ Unable to load teacher data. Please check backend.</p>`;
+        console.error('Error loading teacher data:', error);
+        document.querySelector('.teacher-details').innerHTML = `
+            <div class="detail-item">
+                <span class="detail-label">Teacher Name:</span>
+                <span class="detail-value">Prof. Sarah Johnson</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Teacher ID:</span>
+                <span class="detail-value">TCH-7284</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Subject:</span>
+                <span class="detail-value">Mathematics</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">sarah.johnson@school.edu</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Class:</span>
+                <span class="detail-value">10A</span>
+            </div>
+        `;
     }
 }

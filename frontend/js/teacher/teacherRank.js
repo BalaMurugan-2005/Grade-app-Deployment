@@ -1,3 +1,6 @@
+// ✅ Use absolute URL for API calls
+const API_BASE_URL = 'http://localhost:5001';
+
 // DOM Elements
 const hamburger = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar');
@@ -68,8 +71,8 @@ async function loadRankings() {
     try {
         // Load rankings from API
         const [rankingsResponse, statsResponse] = await Promise.all([
-            fetch('/api/rankings'),
-            fetch('/api/statistics')
+            fetch(`${API_BASE_URL}/api/rankings`),
+            fetch(`${API_BASE_URL}/api/statistics`)
         ]);
 
         if (!rankingsResponse.ok || !statsResponse.ok) {
@@ -274,7 +277,7 @@ function filterRankings(searchTerm) {
 
 async function exportToCSV() {
     try {
-        const response = await fetch('/api/export/rankings');
+        const response = await fetch(`${API_BASE_URL}/api/export/rankings`);
         if (!response.ok) throw new Error('Export failed');
         
         const blob = await response.blob();
