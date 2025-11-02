@@ -1,128 +1,124 @@
-🎓 Student Grade Calculator
-📘 Project Overview
+# 🎓 Student Grade Calculator
 
-The Student Grade Calculator is a web-based application designed to simplify and automate the process of managing student grades. It provides role-based access for Teachers and Students, ensuring that both users can efficiently perform their respective tasks in an organized and user-friendly interface.The system eliminates manual grade calculations by automatically generating grades based on the marks entered by teachers. 
-It also offers additional features such as voice-based mark entry, result publication, and ranking visualization for enhanced usability and efficiency.
+## 📘 Project Overview
 
+The **Student Grade Calculator** is a modern web-based application crafted to simplify and automate student grade management. Designed with intuitive, role-based dashboards for both teachers and students, it streamlines the entire grading process—eliminating manual calculations, ensuring transparency, and enhancing usability through smart features like voice-based mark entry, automated grade computation, and real-time ranking visualization.
 
+---
 
-👩‍🏫 Teacher Module
+## 👩‍🏫 Teacher Module
 
-The Teacher Dashboard empowers educators to manage student marks and results effortlessly. It includes three main sections:
+The **Teacher Dashboard** equips educators to efficiently manage student marks and results. Key sections include:
 
-1. Teacher Dashboard
+### 1. Teacher Dashboard
 
-Displays teacher details such as:
+- **Displays Teacher Information:**
+  - Name
+  - ID
+  - Email
+  - Subject(s)
+  - Class(es) handled
 
-Name
 
-ID
 
-Email
+### 2. Mark Entry Page
 
-Subject
+- **Marks Entry Tab**
+  - View **Unmarked** and **Marked** students.
+  - Enter marks manually or via the innovative **Voice Entry** feature.
+  - Save marks to trigger automatic grade calculation.
 
-Class handled
+- **Publish Result Tab**
+  - System verifies that all marks are entered and graded.
+  - Publish all students' results with one click.
 
-This page serves as the main overview for teachers to manage their activities.
+### 3. View Rank Page
 
-2. Mark Entry Page
+- View overall student rankings based on performance.
+- Analyze academic progress and identify top performers at a glance.
 
-This page allows teachers to input student marks efficiently. It is divided into two tabs:
+---
 
-🔹 Marks Entry Tab
+## 🧑‍🎓 Student Module
 
-Displays two sections: Unmarked Students and Marked Students.
+The **Student Dashboard** provides each learner with personalized academic insights and transparent access to their results and rankings.
 
-Teachers can enter marks for unmarked students manually or through voice input using a “Voice Entry” feature.
+### 1. Student Dashboard
 
-Once marks are entered, teachers can save the data for automatic grade calculation.
+- **Displays Student Information:**
+  - Name
+  - Roll Number
+  - Class
+  - Academic Year
+  - Attendance
 
-🔹 Publish Result Tab
 
-Before publishing, the system verifies whether all student marks are properly graded.
 
-Once validated, teachers can publish the final results for all students with a single click.
+### 2. View Result Page
 
-3. View Rank Page
+- View detailed subject-wise marks, grades, and overall performance.
+- Grades are automatically computed as per predefined criteria—ensuring fairness and accuracy.
 
-Displays the overall ranking of students based on their performance.
+### 3. View Rank Page
 
-Helps teachers analyze student progress and identify top performers.
+- See your rank among classmates via a dynamic leaderboard.
+- Visualize your academic standing and get motivated to improve.
 
-🧑‍🎓 Student Module
+---
 
-The Student Dashboard provides each student with personalized academic information and access to their results and rankings.
+## 💡 Why Choose Student Grade Calculator?
 
-1. Student Dashboard
+- **Automatic Grade Calculation:** Eliminates manual errors.
+- **Voice-Enabled Data Entry:** Speeds up mark entry and reduces effort.
+- **Instant Result Publication:** One-click result announcements.
+- **Transparent Ranking:** Real-time visualization of student standings.
+- **Role-Based Access:** Secure, organized, and user-friendly interfaces for both teachers and students.
 
-Displays essential student details such as:
+---
 
-Name
+## 🚀 Getting Started
 
-Roll Number
+Follow these steps to set up and run the Student Grade Calculator on your local system:
 
-Class
+### 🧑‍🏫 For Teachers
 
-Academic Year
+1. **Open your project folder** in VS Code.
+2. **Start the teacher backend:**
+   ```bash
+   cd backend
+   node teacherserver.js
+   ```
+3. **Launch the Teacher Dashboard:**  
+   Open `frontend/teacher/teacher_dashboard.html` using Live Server.
 
-Attendance
+4. **Features Available:**  
+   - Enter and manage marks  
+   - Publish results  
+   - View student rankings
 
-This page provides a quick overview of the student’s academic profile.
+---
 
-2. View Result Page
+### 🧑‍🎓 For Students
 
-Shows the detailed result of the student including subject-wise marks, grades, and overall performance.
+1. **Open a new terminal** (keep the teacher server running).
+2. **Start the student backend:**
+   ```bash
+   cd backend
+   node server.js
+   ```
+3. **Launch the Student Dashboard:**  
+   Open `frontend/student/student_dashboard.html` using Live Server.
 
-Automatically calculates and displays grades based on predefined criteria.
+4. **Features Available:**  
+   - View marks, grades, and detailed results  
+   - Check your academic ranking
 
-Ensures transparency and accuracy in student evaluation.
+---
 
-3. View Rank Page
+## ✨ Conclusion
 
-Allows students to view their rank position among classmates.
+The **Student Grade Calculator** bridges the gap between manual grading and digital automation. By integrating intelligent features like automatic grade computation, voice-enabled mark entry, and dynamic ranking, it empowers both teachers and students—making academic management faster, smarter, and more reliable.
 
-Displays a leaderboard-like interface, motivating students to improve their academic performance.
+---
 
-
-💡 Conclusion
-
-The Student Grade Calculator is an innovative solution that bridges the gap between manual grading and digital automation.
-By integrating intelligent features like automatic grade computation, voice-enabled data entry, and dynamic ranking, 
-it streamlines academic management for both teachers and students — making the entire process faster, smarter, and more reliable
-
-
-
-🚀 How to Run the Project
-
-Follow these simple steps to run the Student Grade Calculator project on your system 👇
-
-🧑‍🏫 For Teacher
-
-Open your project folder in VS Code.
-
-Open a terminal and run the backend for teachers:
-
-cd backend
-
-node teacherserver.js
-
-
-Then open frontend/teacher/teacher_dashboard.html using Live Server.
-
-The teacher dashboard will open — now you can enter marks, publish results, and view ranks.
-
-🧑‍🎓 For Student
-
-Open a new terminal (keep the teacher server running).
-
-Run the student backend:
-
-cd backend
-
-node server.js
-
-
-Then open frontend/student/student_dashboard.html using Live Server.
-
-The student dashboard will open — you can view marks, grades, and ranks.
+> **Ready to transform your grading experience? Get started with Student Grade Calculator today!**
