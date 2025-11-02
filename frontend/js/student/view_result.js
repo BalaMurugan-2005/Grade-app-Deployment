@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadResultData() {
         try {
             const studentId = "S20230045"; // Later from login/session
-            const response = await fetch(`http://localhost:5000/api/result/${studentId}`);
+            const response = await fetch(`http://localhost:5001/api/result/${studentId}`);
 
             if (!response.ok) throw new Error('Failed to fetch result data');
             const data = await response.json();

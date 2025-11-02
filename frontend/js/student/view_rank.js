@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch ranking data from backend
     async function loadRankingData() {
         try {
-            const res = await fetch('http://localhost:5000/api/rankings');
+            const res = await fetch('http://localhost:5001/api/rankings');
             if (!res.ok) throw new Error('Failed to load rankings');
             const data = await res.json();
 

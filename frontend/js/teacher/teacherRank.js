@@ -69,7 +69,7 @@ function setupNavigation() {
 
 async function loadRankings() {
     try {
-        // Load rankings from API
+        // Load rankings from API - BOTH use same /api/rankings endpoint
         const [rankingsResponse, statsResponse] = await Promise.all([
             fetch(`${API_BASE_URL}/api/rankings`),
             fetch(`${API_BASE_URL}/api/statistics`)
@@ -79,8 +79,11 @@ async function loadRankings() {
             throw new Error('Failed to load data');
         }
 
-        rankingsData = await rankingsResponse.json();
+        const rankData = await rankingsResponse.json();
         const statistics = await statsResponse.json();
+
+        // Extract rankings array from the response
+        rankingsData = rankData.rankings;
 
         // Update stats
         updateStats(statistics);
@@ -97,8 +100,6 @@ async function loadRankings() {
     }
 }
 
-
-
 function updateStats(statistics) {
     totalStudents.textContent = statistics.totalStudents;
     classAverage.textContent = `${statistics.classAverage}%`;
@@ -111,15 +112,15 @@ function updateDemoStats(students) {
     totalStudents.textContent = students.length;
     
     // Class average
-    const classAvg = students.reduce((sum, student) => sum + student.average, 0) / students.length;
+    const classAvg = students.reduce((sum, student) => sum + student.percentage, 0) / students.length;
     classAverage.textContent = `${Math.round(classAvg)}%`;
     
     // Top score
     const topStudent = students[0];
-    topScore.textContent = topStudent ? topStudent.total : '0';
+    topScore.textContent = topStudent ? topStudent.totalMarks : '0';
     
     // Pass percentage (assuming 40% is passing)
-    const passedStudents = students.filter(student => student.average >= 40);
+    const passedStudents = students.filter(student => student.percentage >= 40);
     const passPercent = (passedStudents.length / students.length) * 100;
     passPercentage.textContent = `${Math.round(passPercent)}%`;
 }
@@ -142,18 +143,17 @@ function displayRankings(students) {
         return;
     }
     
-    students.forEach((student, index) => {
-        const rank = index + 1;
+    students.forEach((student) => {
         const row = document.createElement('tr');
         
         // Add medal for top 3 ranks
-        let rankDisplay = `<span class="rank-cell">${rank}</span>`;
-        if (rank === 1) {
-            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-gold"></i> ${rank}</div>`;
-        } else if (rank === 2) {
-            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-silver"></i> ${rank}</div>`;
-        } else if (rank === 3) {
-            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-bronze"></i> ${rank}</div>`;
+        let rankDisplay = `<span class="rank-cell">${student.rank}</span>`;
+        if (student.rank === 1) {
+            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-gold"></i> ${student.rank}</div>`;
+        } else if (student.rank === 2) {
+            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-silver"></i> ${student.rank}</div>`;
+        } else if (student.rank === 3) {
+            rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-bronze"></i> ${student.rank}</div>`;
         }
         
         row.innerHTML = `
@@ -163,26 +163,17 @@ function displayRankings(students) {
                     <div class="avatar">${student.name.charAt(0)}</div>
                     <div class="student-details">
                         <div class="student-name">${student.name}</div>
-                        <div class="student-roll">${student.rollNo} | ${student.class}</div>
+                        <div class="student-roll">${student.rollNo}</div>
                     </div>
                 </div>
             </td>
-            <td class="marks-cell">${student.total}/500</td>
-            <td class="average-cell">${student.average}%</td>
+            <td class="marks-cell">${student.totalMarks}/500</td>
+            <td class="average-cell">${student.percentage}%</td>
             <td><span class="grade-badge ${getGradeClass(student.grade)}">${student.grade}</span></td>
         `;
         
         rankingBody.appendChild(row);
     });
-}
-
-function calculateGrade(average) {
-    if (average >= 90) return 'A+';
-    if (average >= 80) return 'A';
-    if (average >= 70) return 'B';
-    if (average >= 60) return 'C';
-    if (average >= 40) return 'D';
-    return 'F';
 }
 
 function getGradeClass(grade) {
@@ -264,22 +255,15 @@ async function exportToCSV() {
 
 function exportToCSVClientSide() {
     // Create CSV content from current rankings data
-    let csvContent = "Rank,Student Name,Roll No,Class,Tamil,English,Maths,Science,Social,Total,Average,Grade\n";
+    let csvContent = "Rank,Student Name,Roll No,Total Marks,Percentage,Grade\n";
     
-    rankingsData.forEach((student, index) => {
-        const rank = index + 1;
+    rankingsData.forEach((student) => {
         const row = [
-            rank,
+            student.rank,
             `"${student.name}"`,
             student.rollNo,
-            student.class,
-            student.marks.tamil,
-            student.marks.english,
-            student.marks.maths,
-            student.marks.science,
-            student.marks.social,
-            student.total,
-            student.average,
+            student.totalMarks,
+            student.percentage,
             student.grade
         ];
         csvContent += row.join(',') + '\n';
