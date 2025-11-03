@@ -80,13 +80,13 @@ The **Student Dashboard** provides each learner with personalized academic insig
 
 Follow these steps to set up and run the Student Grade Calculator on your local system:
 
-### 🧑‍🏫 For Teachers
+### 🧑‍🏫 For starting backend server
 
 1. **Open your project folder** in VS Code.
-2. **Start the teacher backend:**
+2. **Start the teacher  and students server**
    ```bash
    cd backend
-   node teacherserver.js
+   node server.js
    ```
 3. **Launch the Teacher Dashboard:**  
    Open `frontend/teacher/teacher_dashboard.html` using Live Server.
@@ -97,19 +97,10 @@ Follow these steps to set up and run the Student Grade Calculator on your local 
    - View student rankings
 
 ---
-
-### 🧑‍🎓 For Students
-
-1. **Open a new terminal** (keep the teacher server running).
-2. **Start the student backend:**
-   ```bash
-   cd backend
-   node server.js
-   ```
-3. **Launch the Student Dashboard:**  
+Student dashboard
+**Launch the Student Dashboard:**  
    Open `frontend/student/student_dashboard.html` using Live Server.
-
-4. **Features Available:**  
+ **Features Available:**  
    - View marks, grades, and detailed results  
    - Check your academic ranking
 
