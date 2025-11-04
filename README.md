@@ -76,52 +76,85 @@ The **Student Dashboard** provides each learner with personalized academic insig
 
 ---
 
-🚀 Getting Started
-Follow these steps to set up and run GradeMaster on your local system:
+# 🚀 GradeMaster - Getting Started Guide
 
-Prerequisites
-Node.js (v18 or higher) - Download here
+Welcome to **GradeMaster**! Follow these simple steps to set up and run GradeMaster on your local system.
 
-VS Code with Live Server extension (recommended)
+---
 
-Modern web browser (Chrome, Firefox, Safari, or Edge)
+## ⚡ Prerequisites
 
-Step 1: Project Setup
-Download and extract the project files to your desired location
+- **Node.js v18+**  
+  [Download from here](https://nodejs.org/)
 
-Open the project folder in VS Code:
+- **Visual Studio Code (VS Code)**  
+  + [Live Server extension (Recommended)](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
 
-bash
-code grade-master
-Step 2: Backend Server Setup
-Navigate to backend directory:
+- **Modern Web Browser**  
+  Chrome, Firefox, Safari, or Edge
 
-bash
-cd backend
-Install dependencies (if not already installed):
+---
 
-bash
-npm install express cors
-Start the server:
+## 1️⃣ Project Setup
 
-bash
-node server.js
-Verify server is running:
+1. **Download and Extract**  
+   Get the GradeMaster project files and extract them to your chosen location.
 
-You should see: ✅ Consolidated Student & Teacher Server running on http://localhost:5001
+2. **Open in VS Code**  
+   ```bash
+   code grade-master
+   ```
 
-Keep this terminal window open
+---
 
-Step 3: Frontend Setup
-Option A: Using VS Code Live Server (Recommended)
+## 2️⃣ Backend Server Setup
 
-Install "Live Server" extension in VS Code
+1. **Navigate to the Backend Directory**
+   ```bash
+   cd backend
+   ```
 
-Right-click on frontend/templates/login.html
+2. **Install Dependencies**  
+   *(If you haven’t already)*
+   ```bash
+   npm install express cors
+   ```
 
-Select "Open with Live Server"
+3. **Start the Backend Server**
+   ```bash
+   node server.js
+   ```
+   You should see:  
+   ```
+   ✅ Consolidated Student & Teacher Server running on http://localhost:5001
+   ```
+   > **_Tip_: Keep this terminal window open while working!**
 
-Browser will open automatically at http://127.0.0.1:5500
+---
+
+## 3️⃣ Frontend Setup
+
+### Option A: 🚀 **Using VS Code Live Server (Recommended)**
+
+1. Install the **Live Server** extension in VS Code.
+
+2. Right-click on `frontend/templates/login.html`
+
+3. Choose **"Open with Live Server"**
+
+4. Your browser should open automatically at:  
+   [http://127.0.0.1:5500](http://127.0.0.1:5500)
+
+---
+
+## 🎉 All Set!
+
+You’re ready to explore GradeMaster!  
+If you run into any issues, check out the documentation or reach out for help.
+
+Happy Grading! 🌟
+
+
 ## ✨ Conclusion
 
 The **Student Grade Calculator** bridges the gap between manual grading and digital automation. By integrating intelligent features like automatic grade computation, voice-enabled mark entry, and dynamic ranking, it empowers both teachers and students—making academic management faster, smarter, and more reliable.
