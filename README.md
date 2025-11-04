@@ -134,7 +134,7 @@ Welcome to **GradeMaster**! Follow these simple steps to set up and run GradeMas
 
 ## 3️⃣ Frontend Setup
 
-### Option A: 🚀 **Using VS Code Live Server (Recommended)**
+###  🚀 **Using VS Code Live Server (Recommended)**
 
 1. Install the **Live Server** extension in VS Code.
 
