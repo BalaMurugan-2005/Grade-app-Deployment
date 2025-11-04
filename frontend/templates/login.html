@@ -59,8 +59,10 @@
     </div>
 
     <script>
-        
     document.addEventListener('DOMContentLoaded', function() {
+        // Check if user is already logged in
+        checkExistingSession();
+        
         const studentBtn = document.getElementById('student-btn');
         const teacherBtn = document.getElementById('teacher-btn');
         const loginForm = document.getElementById('loginForm');
@@ -87,13 +89,17 @@
             const isStudent = studentBtn.classList.contains('active');
             const userType = isStudent ? 'student' : 'teacher';
             
-            // Simple validation
             if (!username || !password) {
-                alert('Please enter both username and password');
+                showAlert('Please enter both username and password', 'error');
                 return;
             }
             
             try {
+                const loginBtn = document.querySelector('.login-btn');
+                const originalText = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                loginBtn.disabled = true;
+                
                 const response = await fetch('http://localhost:5001/api/login', {
                     method: 'POST',
                     headers: {
@@ -109,25 +115,146 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Store user info in localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    localStorage.setItem('userType', userType);
+                    // Store session data
+                    const sessionData = {
+                        user: data.user,
+                        userType: userType,
+                        loginTime: new Date().toISOString(),
+                        sessionId: 'session_' + Date.now()
+                    };
                     
-                    // Redirect to appropriate dashboard
-                    window.location.href = data.redirectUrl;
+                    localStorage.setItem('currentSession', JSON.stringify(sessionData));
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    
+                    // Prevent back navigation
+                    preventBackNavigation();
+                    
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl;
+                        // Clear any history entry for login page
+                        window.history.replaceState(null, null, window.location.href);
+                    }, 1000);
+                    
                 } else {
-                    alert(data.message || 'Login failed. Please check your credentials.');
+                    showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
+                    loginBtn.innerHTML = originalText;
+                    loginBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Login failed. Please try again.');
+                showAlert('Login failed. Please try again.', 'error');
+                document.querySelector('.login-btn').innerHTML = 'Sign In';
+                document.querySelector('.login-btn').disabled = false;
             }
         });
         
         // Set default to student login
         studentBtn.classList.add('active');
+        
+        // Disable browser back button on login page
+        disableBackButton();
     });
 
-    </script>
+    // Check if user already has an active session
+    async function checkExistingSession() {
+        const currentSession = localStorage.getItem('currentSession');
+        
+        if (currentSession) {
+            try {
+                const session = JSON.parse(currentSession);
+                const response = await fetch(`http://localhost:5001/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+                const authData = await response.json();
+                
+                if (authData.authenticated) {
+                    // User is already authenticated, redirect to dashboard
+                    preventBackNavigation();
+                    const redirectUrl = session.userType === 'student' 
+                        ? '/frontend/templates/student/Student_DashBoard.html'
+                        : '/frontend/templates/Teacher/Teacher_DashBoard.html';
+                    
+                    window.location.href = redirectUrl;
+                    return;
+                } else {
+                    // Session is invalid, clear it
+                    clearSession();
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+                clearSession();
+            }
+        }
+    }
+
+    // Prevent back button navigation
+    function preventBackNavigation() {
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', function(event) {
+            window.history.pushState(null, null, window.location.href);
+            // Optional: Show a message
+            showAlert('Navigation restricted. Please use logout button to exit.', 'warning');
+        });
+    }
+
+    // Disable back button specifically for login page
+    function disableBackButton() {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.go(1);
+        };
+    }
+
+    // Clear session data
+    function clearSession() {
+        localStorage.removeItem('currentSession');
+        sessionStorage.removeItem('isAuthenticated');
+    }
+
+    // Show alert messages
+    function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlert = document.querySelector('.alert-message');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = document.createElement('div');
+        alert.className = `alert-message alert-${type}`;
+        alert.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
+            ${message}
+        `;
+        
+        // Add styles
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            ${type === 'success' ? 'background: #28a745;' : 
+              type === 'error' ? 'background: #dc3545;' : 
+              'background: #ffc107; color: #000;'}
+        `;
+        
+        document.body.appendChild(alert);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
+    }
+</script>
 </body>
 </html>

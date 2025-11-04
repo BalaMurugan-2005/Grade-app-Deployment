@@ -285,6 +285,93 @@ app.post('/api/login', async (req, res) => {
         });
     }
 });
+app.get('/api/check-auth', async (req, res) => {
+    try {
+        const { userType, userId } = req.query;
+        
+        if (!userType || !userId) {
+            return res.json({ authenticated: false });
+        }
+
+        const credentials = await readJSONFile(userCredentialsPath);
+        const userList = userType === 'student' ? credentials.students : credentials.teachers;
+        const user = userList.find(u => u.id === userId);
+
+        if (!user) {
+            return res.json({ authenticated: false });
+        }
+
+        // Return user data without password
+        const { password: _, ...userData } = user;
+        
+        res.json({
+            authenticated: true,
+            userType: userType,
+            user: userData
+        });
+
+    } catch (error) {
+        console.error('Auth check error:', error);
+        res.json({ authenticated: false });
+    }
+});
+app.get('/api/check-auth', async (req, res) => {
+    try {
+        // In a real app, you would use JWT tokens or sessions
+        // For simplicity, we'll use a query parameter or header
+        const { userType, userId } = req.query;
+        
+        if (!userType || !userId) {
+            return res.json({ authenticated: false });
+        }
+
+        const credentials = await readJSONFile(userCredentialsPath);
+        const userList = userType === 'student' ? credentials.students : credentials.teachers;
+        const user = userList.find(u => u.id === userId);
+
+        if (!user) {
+            return res.json({ authenticated: false });
+        }
+
+        // Return user data without password
+        const { password: _, ...userData } = user;
+        
+        res.json({
+            authenticated: true,
+            userType: userType,
+            user: userData
+        });
+
+    } catch (error) {
+        console.error('Auth check error:', error);
+        res.json({ authenticated: false });
+    }
+});
+
+// ✅ Logout endpoint
+app.post('/api/logout', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Logged out successfully' 
+    });
+});
+// ===============================
+// 🛡️ AUTHENTICATION MIDDLEWARE
+// ===============================
+
+// Middleware to check if user is authenticated
+const requireAuth = (req, res, next) => {
+    // For API routes, we'll check via the check-auth endpoint
+    // For HTML pages, we'll handle via client-side JavaScript
+    next();
+};
+
+app.use('/student/dashboard', requireAuth);
+app.use('/teacher/dashboard', requireAuth);
+app.use('/student/result', requireAuth);
+app.use('/student/rank', requireAuth);
+app.use('/teacher/marks', requireAuth);
+app.use('/teacher/rankings', requireAuth);
 
 // ===============================
 // 🎓 STUDENT API Routes

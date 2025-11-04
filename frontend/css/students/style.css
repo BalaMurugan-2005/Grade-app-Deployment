@@ -154,7 +154,49 @@
             padding: 5px;
             margin-bottom: 25px;
         }
+        /* Alert Messages */
+.alert-message {
+    animation: slideDown 0.3s ease-out;
+}
 
+.alert-success {
+    background: #28a745 !important;
+}
+
+.alert-error {
+    background: #dc3545 !important;
+}
+
+.alert-warning {
+    background: #ffc107 !important;
+    color: #000 !important;
+}
+
+.session-message {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
         .user-type-btn {
             flex: 1;
             padding: 12px;
