@@ -494,12 +494,12 @@ if (!document.querySelector('#result-styles')) {
         }
         .info-label {
             font-size: 0.85em;
-            color: #6c757d;
+            color: #2a4354ff;
             font-weight: 500;
         }
         .info-value {
             font-size: 1em;
-            color: #343a40;
+            color: #040404ff;
             font-weight: 600;
         }
         
@@ -515,11 +515,11 @@ if (!document.querySelector('#result-styles')) {
             font-size: 2rem;
             font-weight: 700;
             margin: 10px 0;
-            color: #343a40;
+            color: #000000ff;
         }
         .summary-label {
             font-size: 1rem;
-            color: #6c757d;
+            color: #0a70c9ff;
             font-weight: 500;
         }
         
@@ -539,13 +539,13 @@ if (!document.querySelector('#result-styles')) {
             color: #dc3545;
         }
         .result-unmarked {
-            color: #6c757d;
+            color: #1c1f21ff;
         }
         
         .no-data {
             text-align: center;
             padding: 30px;
-            color: #6c757d;
+            color: #050506ff;
         }
         .no-data i {
             font-size: 3em;

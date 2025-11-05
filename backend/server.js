@@ -178,7 +178,118 @@ app.post('/api/logout', (req, res) => {
 // ===============================
 // 🎓 STUDENT API Routes
 // ===============================
+// ===============================
+// 👤 STUDENT PROFILE API Routes
+// ===============================
 
+// ✅ Get student profile data (for Profile page)
+app.get('/api/student/:id/profile', async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const studentData = await readJSONFile(studentDataPath);
+        const students = studentData.students || [];
+        const student = students.find(s => s.id === studentId);
+
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // Format profile data according to your Student.json structure
+        const profileData = {
+            // Personal Information
+            id: student.id,
+            name: student.name,
+            email: student.email,
+            username: student.username,
+            rollNo: student.rollNo,
+            
+            // Academic Information
+            class: student.class,
+            section: student.section,
+            academicYear: student.academicYear,
+            attendance: student.attendance,
+            rank: student.rank,
+            grade: student.grade,
+            
+            // Marks
+            marks: student.marks || {},
+            totalMarks: student.totalMarks,
+            percentage: student.percentage,
+            status: student.status,
+            
+            // Badges
+            badges: student.badges || [],
+            
+            // System
+            isMarked: student.isMarked || false
+        };
+
+        res.json(profileData);
+    } catch (error) {
+        console.error('Error fetching student profile:', error);
+        res.status(500).json({ error: 'Error reading student profile data' });
+    }
+});
+
+// ✅ Change student password
+app.post('/api/student/:id/change-password', async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Current password and new password are required' 
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'New password must be at least 6 characters long' 
+            });
+        }
+
+        // Read student data
+        const studentData = await readJSONFile(studentDataPath);
+        const students = studentData.students || [];
+        const studentIndex = students.findIndex(s => s.id === studentId);
+
+        if (studentIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Student not found' 
+            });
+        }
+
+        // Verify current password
+        if (students[studentIndex].password !== currentPassword) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Current password is incorrect' 
+            });
+        }
+
+        // Update password
+        students[studentIndex].password = newPassword;
+
+        // Write back to file
+        await writeJSONFile(studentDataPath, studentData);
+
+        res.json({ 
+            success: true, 
+            message: 'Password changed successfully' 
+        });
+
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error' 
+        });
+    }
+});
 // ✅ 1. Get student info (Student Dashboard)
 app.get('/api/student/:id', async (req, res) => {
     try {

@@ -29,7 +29,12 @@
       "grade": "A+",
       "status": "Pass",
       "password": "Arj!n492#",
-      "badges": ["rank-1", "perfect-attendance", "all-subjects-95+", "academic-excellence"]
+      "badges": [
+        "rank-1",
+        "perfect-attendance",
+        "all-subjects-95+",
+        "academic-excellence"
+      ]
     },
     {
       "rank": 2,
@@ -55,7 +60,12 @@
       "grade": "A+",
       "status": "Pass",
       "password": "Kvya#485*",
-      "badges": ["rank-2", "high-achiever", "maths-excellence", "consistent-performer"]
+      "badges": [
+        "rank-2",
+        "high-achiever",
+        "maths-excellence",
+        "consistent-performer"
+      ]
     },
     {
       "rank": 3,
@@ -81,8 +91,13 @@
       "grade": "A+",
       "status": "Pass",
       "isYou": true,
-      "password": "Bala#459!",
-      "badges": ["rank-3", "perfect-maths", "perfect-social", "subject-expert"]
+      "password": "Bala9677540588#",
+      "badges": [
+        "rank-3",
+        "perfect-maths",
+        "perfect-social",
+        "subject-expert"
+      ]
     },
     {
       "rank": 4,
@@ -108,7 +123,12 @@
       "grade": "A+",
       "status": "Pass",
       "password": "Divya471@",
-      "badges": ["rank-4", "all-rounder", "high-attendance", "consistent-performer"]
+      "badges": [
+        "rank-4",
+        "all-rounder",
+        "high-attendance",
+        "consistent-performer"
+      ]
     },
     {
       "rank": 5,
@@ -134,7 +154,10 @@
       "grade": "B+",
       "status": "Pass",
       "password": "Priya_D438",
-      "badges": ["rank-5", "english-excellence"]
+      "badges": [
+        "rank-5",
+        "english-excellence"
+      ]
     },
     {
       "rank": 6,
@@ -160,7 +183,9 @@
       "grade": "B",
       "status": "Pass",
       "password": "Suresh#421",
-      "badges": ["maths-strength"]
+      "badges": [
+        "maths-strength"
+      ]
     },
     {
       "rank": 7,
@@ -186,7 +211,9 @@
       "grade": "B",
       "status": "Pass",
       "password": "Harini_414",
-      "badges": ["balanced-performer"]
+      "badges": [
+        "balanced-performer"
+      ]
     },
     {
       "rank": 8,
@@ -212,7 +239,9 @@
       "grade": "B",
       "status": "Pass",
       "password": "Manoj400!",
-      "badges": ["consistent-effort"]
+      "badges": [
+        "consistent-effort"
+      ]
     },
     {
       "rank": 9,
@@ -238,7 +267,10 @@
       "grade": "A",
       "status": "Pass",
       "password": "Vikram#80",
-      "badges": ["tamil-strength", "maths-strength"]
+      "badges": [
+        "tamil-strength",
+        "maths-strength"
+      ]
     },
     {
       "rank": 10,
@@ -264,7 +296,9 @@
       "grade": "C+",
       "status": "Pass",
       "password": "Devi#395",
-      "badges": ["consistent-attendance"]
+      "badges": [
+        "consistent-attendance"
+      ]
     },
     {
       "rank": 11,
@@ -290,7 +324,10 @@
       "grade": "B+",
       "status": "Pass",
       "password": "Sneha#90",
-      "badges": ["english-excellence", "science-strength"]
+      "badges": [
+        "english-excellence",
+        "science-strength"
+      ]
     },
     {
       "rank": 12,
@@ -316,7 +353,9 @@
       "grade": "C",
       "status": "Fail",
       "password": "Kiran380!",
-      "badges": ["needs-improvement"]
+      "badges": [
+        "needs-improvement"
+      ]
     },
     {
       "id": "S20230112",
