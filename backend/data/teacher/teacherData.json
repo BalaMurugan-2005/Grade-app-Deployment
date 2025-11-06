@@ -4,34 +4,33 @@
     "name": "Prof. Sarah Johnson",
     "email": "sarah.johnson@grademaster.edu",
     "username": "sarah_johnson",
-    "password": "Sarah@7284"
+    "password": "Sarah@7284",
+    "designation": "Professor",
+    "department": "Academic Department",
+    "joinDate": "2023-08-01",
+    "experience": "2+ years",
+    "contact": {
+      "phone": "+91 98765 43210",
+      "address": "GradeMaster Institution, Chennai"
+    },
+    "subjects": ["Mathematics", "Science"],
+    "badges": ["efficient-evaluator", "dedicated-educator"]
   },
   {
     "id": "TCH-7285",
     "name": "Mr. David Lee",
     "email": "david.lee@grademaster.edu",
     "username": "david_lee",
-    "password": "David#7285"
-  },
-  {
-    "id": "TCH-7286",
-    "name": "Ms. Priya Natarajan",
-    "email": "priya.natarajan@grademaster.edu",
-    "username": "priya_natarajan",
-    "password": "Priya@7286"
-  },
-  {
-    "id": "TCH-7287",
-    "name": "Mr. Arjun Patel",
-    "email": "arjun.patel@grademaster.edu",
-    "username": "arjun_patel",
-    "password": "Arjun#7287"
-  },
-  {
-    "id": "TCH-7288",
-    "name": "Mrs. Kavitha Raj",
-    "email": "kavitha.raj@grademaster.edu",
-    "username": "kavitha_raj",
-    "password": "Kavitha@7288"
+    "password": "David#7285",
+    "designation": "Senior Teacher",
+    "department": "Academic Department",
+    "joinDate": "2023-09-15",
+    "experience": "3+ years",
+    "contact": {
+      "phone": "+91 98765 43211",
+      "address": "GradeMaster Institution, Chennai"
+    },
+    "subjects": ["English", "Social Science"],
+    "badges": ["active-evaluator", "consistent-performer"]
   }
 ]

@@ -353,7 +353,91 @@ app.get('/api/result/:id', async (req, res) => {
         res.status(500).json({ error: 'Error reading result data' });
     }
 });
+// ✅ Debug: Test teacher profile endpoint
+app.get('/api/debug/teacher/:id/profile', async (req, res) => {
+    try {
+        const teacherId = req.params.id;
+        console.log('🔍 Debug: Fetching teacher profile for ID:', teacherId);
+        
+        const teachers = await readJSONFile(teacherDataPath);
+        console.log('🔍 Debug: All teachers:', teachers);
+        
+        const teacher = teachers.find(t => t.id === teacherId);
+        console.log('🔍 Debug: Found teacher:', teacher);
 
+        if (!teacher) {
+            console.log('❌ Debug: Teacher not found');
+            return res.status(404).json({ message: 'Teacher not found' });
+        }
+
+        // Get student data for statistics
+        const studentData = await readJSONFile(studentDataPath);
+        const students = studentData.students || [];
+        
+        // Calculate basic statistics
+        const totalStudents = students.length;
+        const markedStudents = students.filter(s => s.isMarked).length;
+        
+        const profileData = {
+            id: teacher.id,
+            name: teacher.name,
+            email: teacher.email,
+            username: teacher.username,
+            designation: teacher.designation,
+            department: teacher.department,
+            joinDate: teacher.joinDate,
+            experience: teacher.experience,
+            subjects: teacher.subjects,
+            contact: teacher.contact,
+            badges: teacher.badges || ['active-teacher'],
+            statistics: {
+                totalStudents: totalStudents,
+                markedStudents: markedStudents,
+                pendingEvaluations: totalStudents - markedStudents,
+                classAverage: 75, // Placeholder
+                passPercentage: 85, // Placeholder
+                topScore: 492, // Placeholder
+                topPerformer: 'Arjun Kumar', // Placeholder
+                subjectsHandled: teacher.subjects
+            }
+        };
+
+        console.log('✅ Debug: Sending profile data:', profileData);
+        res.json(profileData);
+
+    } catch (error) {
+        console.error('❌ Debug: Error in teacher profile:', error);
+        res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+});
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// ✅ Test route to check if teacher profile API is working
+app.get('/api/test-teacher-profile', async (req, res) => {
+    try {
+        console.log('🔍 Testing teacher profile API...');
+        
+        const teachers = await readJSONFile(teacherDataPath);
+        console.log('📊 Teachers data:', teachers);
+        
+        const studentData = await readJSONFile(studentDataPath);
+        console.log('📊 Students count:', studentData.students ? studentData.students.length : 0);
+        
+        res.json({
+            success: true,
+            message: 'Teacher profile API is working',
+            teachersCount: teachers.length,
+            studentsCount: studentData.students ? studentData.students.length : 0
+        });
+    } catch (error) {
+        console.error('❌ Test route error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Test failed',
+            error: error.message
+        });
+    }
+});
+//////////////////////////////////////////////////////////////////////////////////////////////
 // ✅ 3. Get ranking list (View Rank page) - FIXED FOR YOUR DATA STRUCTURE
 // ✅ 3. Get ranking list (View Rank page) - UPDATED FOR BOTH STUDENT AND TEACHER
 app.get('/api/rankings', async (req, res) => {
@@ -397,7 +481,189 @@ app.get('/api/rankings', async (req, res) => {
 // ===============================
 // 👩‍🏫 TEACHER API Routes
 // ===============================
+// ✅ Get teacher profile data (for Profile page)
+// ===============================
+// 👩‍🏫 TEACHER PROFILE API Routes
+// ===============================
 
+// ✅ Get teacher profile data (for Profile page)
+app.get('/api/teacher/:id/profile', async (req, res) => {
+    try {
+        const teacherId = req.params.id;
+        const teachers = await readJSONFile(teacherDataPath);
+        const teacher = teachers.find(t => t.id === teacherId);
+
+        if (!teacher) {
+            return res.status(404).json({ message: 'Teacher not found' });
+        }
+
+        // Get teacher statistics from student data
+        const studentData = await readJSONFile(studentDataPath);
+        const students = studentData.students || [];
+        
+        // Calculate teacher statistics
+        const totalStudents = students.length;
+        const markedStudents = students.filter(s => s.isMarked).length;
+        const studentsWithMarks = students.filter(s => s.isMarked && s.totalMarks);
+        
+        // Calculate class averages if marks are available
+        let classAverage = 0;
+        let passPercentage = 0;
+        let topPerformer = null;
+        
+        if (studentsWithMarks.length > 0) {
+            const totalMarks = studentsWithMarks.reduce((sum, student) => sum + student.totalMarks, 0);
+            classAverage = totalMarks / studentsWithMarks.length;
+            passPercentage = (studentsWithMarks.filter(s => s.status === 'Pass').length / studentsWithMarks.length) * 100;
+            
+            // Find top performer
+            topPerformer = studentsWithMarks.reduce((top, student) => 
+                student.totalMarks > (top?.totalMarks || 0) ? student : top, null
+            );
+        }
+
+        // Format profile data using your enhanced teacher data structure
+        const profileData = {
+            // Personal Information
+            id: teacher.id,
+            name: teacher.name,
+            email: teacher.email,
+            username: teacher.username,
+            
+            // Professional Information (from your enhanced data)
+            designation: teacher.designation || getDesignation(teacher.name),
+            department: teacher.department || "Academic Department",
+            joinDate: teacher.joinDate || "2023-08-01",
+            experience: teacher.experience || "2+ years",
+            subjects: teacher.subjects || [],
+            
+            // Teaching Statistics (calculated from student data)
+            statistics: {
+                totalStudents: totalStudents,
+                markedStudents: markedStudents,
+                pendingEvaluations: totalStudents - markedStudents,
+                classAverage: Math.round(classAverage),
+                passPercentage: Math.round(passPercentage),
+                topScore: topPerformer ? topPerformer.totalMarks : 0,
+                topPerformer: topPerformer ? topPerformer.name : 'N/A',
+                subjectsHandled: teacher.subjects || ["All Subjects"]
+            },
+            
+            // Contact Information (from your enhanced data)
+            contact: teacher.contact || {
+                email: teacher.email,
+                phone: "+91 98765 43210",
+                address: "GradeMaster Institution, Chennai"
+            },
+            
+            // Badges based on performance (calculated dynamically)
+            badges: generateTeacherBadges(markedStudents, passPercentage, totalStudents)
+        };
+
+        res.json(profileData);
+    } catch (error) {
+        console.error('Error fetching teacher profile:', error);
+        res.status(500).json({ error: 'Error reading teacher profile data' });
+    }
+});
+
+// ✅ Change teacher password
+app.post('/api/teacher/:id/change-password', async (req, res) => {
+    try {
+        const teacherId = req.params.id;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Current password and new password are required' 
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'New password must be at least 6 characters long' 
+            });
+        }
+
+        // Read teacher data
+        const teachers = await readJSONFile(teacherDataPath);
+        const teacherIndex = teachers.findIndex(t => t.id === teacherId);
+
+        if (teacherIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Teacher not found' 
+            });
+        }
+
+        // Verify current password
+        if (teachers[teacherIndex].password !== currentPassword) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Current password is incorrect' 
+            });
+        }
+
+        // Update password
+        teachers[teacherIndex].password = newPassword;
+
+        // Write back to file
+        await writeJSONFile(teacherDataPath, teachers);
+
+        res.json({ 
+            success: true, 
+            message: 'Password changed successfully' 
+        });
+
+    } catch (error) {
+        console.error('Error changing teacher password:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error' 
+        });
+    }
+});
+
+// ✅ Update teacher profile information
+app.put('/api/teacher/:id/profile', async (req, res) => {
+    try {
+        const teacherId = req.params.id;
+        const { email, phone, address } = req.body;
+
+        // Read teacher data
+        const teachers = await readJSONFile(teacherDataPath);
+        const teacherIndex = teachers.findIndex(t => t.id === teacherId);
+
+        if (teacherIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Teacher not found' 
+            });
+        }
+
+        // Update teacher data (only allowed fields)
+        if (email) teachers[teacherIndex].email = email;
+        if (phone) teachers[teacherIndex].contact.phone = phone;
+        if (address) teachers[teacherIndex].contact.address = address;
+
+        // Write back to file
+        await writeJSONFile(teacherDataPath, teachers);
+
+        res.json({ 
+            success: true, 
+            message: 'Profile updated successfully' 
+        });
+
+    } catch (error) {
+        console.error('Error updating teacher profile:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error' 
+        });
+    }
+});
 // 👩‍🏫 Fetch Teacher Profile
 app.get('/api/teacher/:id', async (req, res) => {
     try {
@@ -561,6 +827,13 @@ app.get('/api/statistics', async (req, res) => {
 // ===============================
 // 🔧 Helper Functions
 // ===============================
+// ===============================
+// 🔧 Teacher Profile Helper Functions
+// ===============================
+
+// ===============================
+// 🔧 Helper Functions
+// ===============================
 
 // Grade calculation helper
 function calculateGrade(percentage) {
@@ -583,6 +856,54 @@ function getGrade(marks) {
     return 'F';
 }
 
+// ===============================
+// 🔧 Teacher Profile Helper Functions
+// ===============================
+
+function getDesignation(teacherName) {
+    if (teacherName.includes('Prof.')) return 'Professor';
+    if (teacherName.includes('Mr.')) return 'Senior Teacher';
+    if (teacherName.includes('Ms.')) return 'Teacher';
+    if (teacherName.includes('Mrs.')) return 'Senior Teacher';
+    return 'Teacher';
+}
+
+function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
+    const badges = [];
+    
+    // Efficiency badges
+    if (markedStudents >= 15) {
+        badges.push('efficient-evaluator');
+    } else if (markedStudents >= 10) {
+        badges.push('active-evaluator');
+    }
+    
+    // Dedication badges
+    if (markedStudents >= totalStudents * 0.8) { // 80% of students evaluated
+        badges.push('dedicated-educator');
+    }
+    
+    // Success rate badges
+    if (passPercentage >= 90) {
+        badges.push('academic-excellence');
+    } else if (passPercentage >= 80) {
+        badges.push('high-success-rate');
+    } else if (passPercentage >= 70) {
+        badges.push('consistent-performer');
+    }
+    
+    // Activity badge
+    if (markedStudents > 0) {
+        badges.push('active-teacher');
+    }
+    
+    // Default badge if no specific ones
+    if (badges.length === 0) {
+        badges.push('new-educator');
+    }
+    
+    return badges;
+}
 // ===============================
 // 🏠 Serve HTML Pages
 // ===============================
@@ -622,7 +943,10 @@ app.get('/login', (req, res) => {
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
-
+// Teacher Profile Page
+app.get('/teacher/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
+});
 // Handle 404 - Page not found
 app.use((req, res) => {
     res.status(404).send(`

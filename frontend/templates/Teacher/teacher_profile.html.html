@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeMaster | Teacher Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/css/teacher/profile.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">Grade<span>Master</span></div>
+        </div>
+        <div class="nav-right">
+            <div class="profile" id="profile">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="/frontend/templates/Teacher/teacher_profile.html" class="active"><i class="fas fa-user-tie"></i> View Profile</a>
+                <a href="/frontend/templates/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="Teacher_DashBoard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="mark_entry.html"><i class="fas fa-edit"></i> Marks Entry</a></li>
+            <li><a href="teacher_rank.html"><i class="fas fa-trophy"></i> View Rankings</a></li>
+            <li><a href="teacher_profile.html" class="active"><i class="fas fa-user-tie"></i> Profile</a></li>
+            <li><a href="/frontend/templates/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <h1 class="page-title"><i class="fas fa-user-tie"></i> Teacher Profile</h1>
+        
+        <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar teacher-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="profile-info">
+                    <h2 id="teacherName">Loading...</h2>
+                    <p id="teacherDesignation">Designation: Loading...</p>
+                    <p id="teacherId">Teacher ID: Loading...</p>
+                    <div class="profile-badges" id="profileBadges">
+                        <!-- Badges will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-sections">
+                <!-- Personal Information -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-info-circle"></i> Personal Information</h3>
+                    <div class="info-grid" id="personalInfo">
+                        <!-- Personal info will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-briefcase"></i> Professional Information</h3>
+                    <div class="info-grid" id="professionalInfo">
+                        <!-- Professional info will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Teaching Statistics -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Teaching Statistics</h3>
+                    <div class="stats-grid" id="teachingStats">
+                        <!-- Statistics will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Subjects Handled -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-book"></i> Subjects Handled</h3>
+                    <div class="subjects-grid" id="subjectsHandled">
+                        <!-- Subjects will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-address-book"></i> Contact Information</h3>
+                    <div class="info-grid" id="contactInfo">
+                        <!-- Contact info will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="profile-card">
+                    <h3 class="card-title"><i class="fas fa-key"></i> Change Password</h3>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                            <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/frontend/js/teacher/profile.js"></script>
+</body>
+</html>
