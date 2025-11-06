@@ -1,5 +1,5 @@
 // ===============================
-// 🚀 Consolidated Student & Teacher Server (FIXED FOR YOUR FILE STRUCTURE)
+// 🚀 Consolidated Student & Teacher Server (FIXED RANKING LOGIC - INCLUDES FAILED STUDENTS)
 // ===============================
 const express = require('express');
 const fs = require('fs');
@@ -410,6 +410,7 @@ app.get('/api/debug/teacher/:id/profile', async (req, res) => {
         res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ✅ Test route to check if teacher profile API is working
 app.get('/api/test-teacher-profile', async (req, res) => {
@@ -437,38 +438,55 @@ app.get('/api/test-teacher-profile', async (req, res) => {
         });
     }
 });
+
 //////////////////////////////////////////////////////////////////////////////////////////////
-// ✅ 3. Get ranking list (View Rank page) - FIXED FOR YOUR DATA STRUCTURE
-// ✅ 3. Get ranking list (View Rank page) - UPDATED FOR BOTH STUDENT AND TEACHER
+// ✅ 3. Get ranking list (View Rank page) - FIXED RANKING LOGIC (INCLUDES FAILED STUDENTS AT END)
 app.get('/api/rankings', async (req, res) => {
     try {
         const studentData = await readJSONFile(studentDataPath);
         
-        // Get all marked students and sort by rank
+        // Get all marked students
         const markedStudents = (studentData.students || [])
-            .filter(student => student.isMarked && student.rank)
-            .sort((a, b) => a.rank - b.rank)
-            .map(student => ({
-                rank: student.rank,
-                name: student.name,
-                rollNo: student.rollNo,
-                id: student.id,
-                class: student.class,
-                section: student.section,
-                totalMarks: student.totalMarks,
-                percentage: student.percentage,
-                grade: student.grade,
-                status: student.status,
-                isMarked: student.isMarked || false,
-                marks: student.marks
-            }));
+            .filter(student => student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined);
+        
+        // Separate passed and failed students
+        const passedStudents = markedStudents.filter(student => student.status === 'Pass' || student.percentage >= 40);
+        const failedStudents = markedStudents.filter(student => student.status === 'Fail' || student.percentage < 40);
+        
+        // Sort passed students by total marks descending
+        passedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
+        
+        // Sort failed students by total marks descending (so higher failing marks come first)
+        failedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
+        
+        // Combine passed students first, then failed students
+        const allRankedStudents = [...passedStudents, ...failedStudents];
+        
+        // Assign ranks
+        const rankedStudents = allRankedStudents.map((student, index) => ({
+            rank: index + 1,
+            name: student.name,
+            rollNo: student.rollNo,
+            id: student.id,
+            class: student.class,
+            section: student.section,
+            totalMarks: student.totalMarks,
+            percentage: student.percentage,
+            grade: student.grade,
+            status: student.status,
+            isMarked: student.isMarked || false,
+            marks: student.marks,
+            isFailed: student.status === 'Fail' || student.percentage < 40
+        }));
 
         const response = {
             stats: studentData.stats || {
                 totalStudents: markedStudents.length,
-                academicYear: "2024-2025"
+                academicYear: "2024-2025",
+                passedStudents: passedStudents.length,
+                failedStudents: failedStudents.length
             },
-            rankings: markedStudents
+            rankings: rankedStudents
         };
 
         res.json(response);
@@ -756,12 +774,24 @@ app.post('/api/student/:id/marks', async (req, res) => {
             isMarked: true
         };
 
-        // Recalculate ranks
-        const markedStudents = students.filter(s => s.isMarked && s.totalMarks);
-        markedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
+        // Recalculate ranks for all marked students
+        const markedStudents = students.filter(s => s.isMarked && s.totalMarks !== null && s.totalMarks !== undefined);
         
-        // Assign ranks
-        markedStudents.forEach((student, index) => {
+        // Separate passed and failed students
+        const passedStudents = markedStudents.filter(student => student.status === 'Pass' || student.percentage >= 40);
+        const failedStudents = markedStudents.filter(student => student.status === 'Fail' || student.percentage < 40);
+        
+        // Sort passed students by total marks descending
+        passedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
+        
+        // Sort failed students by total marks descending
+        failedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
+        
+        // Combine passed students first, then failed students
+        const allRankedStudents = [...passedStudents, ...failedStudents];
+        
+        // Assign ranks based on combined sorted position
+        allRankedStudents.forEach((student, index) => {
             const studentIndex = students.findIndex(s => s.id === student.id);
             if (studentIndex !== -1) {
                 students[studentIndex].rank = index + 1;
@@ -772,7 +802,9 @@ app.post('/api/student/:id/marks', async (req, res) => {
         studentData.stats = {
             ...studentData.stats,
             totalStudents: students.length,
-            academicYear: "2024-2025"
+            academicYear: "2024-2025",
+            passedStudents: passedStudents.length,
+            failedStudents: failedStudents.length
         };
 
         // Write back to file
@@ -793,7 +825,7 @@ app.get('/api/statistics', async (req, res) => {
     try {
         const studentData = await readJSONFile(studentDataPath);
         const students = studentData.students || [];
-        const studentsWithMarks = students.filter(student => student.isMarked);
+        const studentsWithMarks = students.filter(student => student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined);
         
         if (studentsWithMarks.length === 0) {
             return res.json({
@@ -801,7 +833,9 @@ app.get('/api/statistics', async (req, res) => {
                 studentsWithMarks: 0,
                 classAverage: 0,
                 topScore: 0,
-                passPercentage: 0
+                passPercentage: 0,
+                passedStudents: 0,
+                failedStudents: 0
             });
         }
         
@@ -809,14 +843,17 @@ app.get('/api/statistics', async (req, res) => {
         const totals = studentsWithMarks.map(student => student.totalMarks);
         const classAverage = totals.reduce((sum, total) => sum + total, 0) / totals.length;
         const topScore = Math.max(...totals);
-        const passPercentage = (studentsWithMarks.filter(student => student.status === 'Pass').length / studentsWithMarks.length) * 100;
+        const passedStudents = studentsWithMarks.filter(student => student.status === 'Pass' || student.percentage >= 40).length;
+        const passPercentage = (passedStudents / studentsWithMarks.length) * 100;
         
         res.json({
             totalStudents: students.length,
             studentsWithMarks: studentsWithMarks.length,
             classAverage: Math.round(classAverage),
             topScore: topScore,
-            passPercentage: Math.round(passPercentage)
+            passPercentage: Math.round(passPercentage),
+            passedStudents: passedStudents,
+            failedStudents: studentsWithMarks.length - passedStudents
         });
     } catch (error) {
         console.error('Error fetching statistics:', error);
@@ -988,7 +1025,7 @@ app.listen(PORT, () => {
     console.log(`   👩‍🏫 Teacher: Use username/email and password from teacherData.json`);
     console.log(`\n💡 Example Student Login:`);
     console.log(`   Username: bala_murugan_s20230045`);
-    console.log(`   Password: Bala#459!`);
+    console.log(`   Password: Bala9677540588#`);
     console.log(`\n💡 Example Teacher Login:`);
     console.log(`   Username: sarah_johnson`);
     console.log(`   Password: Sarah@7284`);

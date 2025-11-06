@@ -2,11 +2,13 @@
   "stats": {
     "yourId": "S20230045",
     "totalStudents": 20,
-    "academicYear": "2024-2025"
+    "academicYear": "2024-2025",
+    "passedStudents": 11,
+    "failedStudents": 3
   },
   "students": [
     {
-      "rank": 1,
+      "rank": 14,
       "id": "S20230010",
       "name": "Arjun Kumar",
       "rollNo": "S20230010",
@@ -365,16 +367,23 @@
       "section": "A",
       "academicYear": "2024-2025",
       "attendance": 85,
-      "isMarked": false,
+      "isMarked": true,
       "username": "rahul_kumar_s20230112",
       "email": "rahul.kumar.s20230112@example.com",
-      "marks": null,
-      "totalMarks": null,
-      "percentage": null,
-      "grade": null,
-      "status": "Unmarked",
+      "marks": {
+        "tamil": 35,
+        "english": 23,
+        "maths": 12,
+        "science": 39,
+        "social": 23
+      },
+      "totalMarks": 132,
+      "percentage": 26.4,
+      "grade": "F",
+      "status": "Fail",
       "password": "Rahul@85",
-      "badges": []
+      "badges": [],
+      "rank": 13
     },
     {
       "id": "S20230113",
@@ -394,7 +403,6 @@
       "status": "Unmarked",
       "password": "Meena@91",
       "badges": []
-      
     },
     {
       "id": "S20230115",

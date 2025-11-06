@@ -154,14 +154,12 @@ async function loadRankings() {
         const rankData = await rankingsResponse.json();
         console.log('Rankings data received:', rankData);
 
-        // Extract rankings array from the response
+        // Extract rankings array and stats from the response
         rankingsData = rankData.rankings || [];
+        const stats = rankData.stats || {};
         
-        // Calculate statistics from the rankings data
-        const statistics = calculateStatistics(rankingsData);
-        
-        // Update stats
-        updateStats(statistics);
+        // Update stats using the stats from the API response
+        updateStats(stats);
         
         // Display rankings
         displayRankings(rankingsData);
@@ -188,51 +186,80 @@ async function loadRankings() {
     }
 }
 
-function calculateStatistics(students) {
+function calculateStatistics(students, stats) {
     if (!students || students.length === 0) {
         return {
             totalStudents: 0,
             classAverage: 0,
             topScore: 0,
-            passPercentage: 0
+            passPercentage: 0,
+            markedStudents: 0,
+            unmarkedStudents: 0
         };
     }
     
-    // Filter only marked students with valid marks
+    // Use stats from API response for total students count
+    const totalStudentsCount = stats.totalStudents || students.length;
+    
+    // Filter only marked students with valid marks for calculations
     const markedStudents = students.filter(student => 
         student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined
     );
     
+    const unmarkedStudents = totalStudentsCount - markedStudents.length;
+    
     if (markedStudents.length === 0) {
         return {
-            totalStudents: students.length,
+            totalStudents: totalStudentsCount,
             classAverage: 0,
             topScore: 0,
-            passPercentage: 0
+            passPercentage: 0,
+            markedStudents: 0,
+            unmarkedStudents: unmarkedStudents
         };
     }
     
-    // Calculate statistics
-    const totalMarked = markedStudents.length;
+    // Calculate statistics only for marked students
     const totalPercentage = markedStudents.reduce((sum, student) => sum + (student.percentage || 0), 0);
-    const classAverage = totalPercentage / totalMarked;
+    const classAverage = totalPercentage / markedStudents.length;
     const topScore = Math.max(...markedStudents.map(student => student.totalMarks || 0));
     const passedStudents = markedStudents.filter(student => student.status === 'Pass').length;
-    const passPercentage = (passedStudents / totalMarked) * 100;
+    const passPercentage = (passedStudents / markedStudents.length) * 100;
     
     return {
-        totalStudents: students.length,
+        totalStudents: totalStudentsCount,
         classAverage: Math.round(classAverage * 10) / 10,
         topScore: topScore,
-        passPercentage: Math.round(passPercentage)
+        passPercentage: Math.round(passPercentage),
+        markedStudents: markedStudents.length,
+        unmarkedStudents: unmarkedStudents
     };
 }
 
-function updateStats(statistics) {
-    if (totalStudents) totalStudents.textContent = statistics.totalStudents;
-    if (classAverage) classAverage.textContent = `${statistics.classAverage}%`;
-    if (topScore) topScore.textContent = statistics.topScore;
-    if (passPercentage) passPercentage.textContent = `${statistics.passPercentage}%`;
+function updateStats(stats) {
+    // Use the stats directly from the API response
+    if (totalStudents) totalStudents.textContent = stats.totalStudents || 0;
+    
+    // Calculate class average, top score, and pass percentage from rankings data
+    const markedStudents = rankingsData.filter(student => 
+        student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined
+    );
+    
+    if (markedStudents.length > 0) {
+        const totalPercentage = markedStudents.reduce((sum, student) => sum + (student.percentage || 0), 0);
+        const classAvg = totalPercentage / markedStudents.length;
+        const topScr = Math.max(...markedStudents.map(student => student.totalMarks || 0));
+        const passedStudents = markedStudents.filter(student => student.status === 'Pass').length;
+        const passPerc = (passedStudents / markedStudents.length) * 100;
+        
+        if (classAverage) classAverage.textContent = `${Math.round(classAvg * 10) / 10}%`;
+        if (topScore) topScore.textContent = topScr;
+        if (passPercentage) passPercentage.textContent = `${Math.round(passPerc)}%`;
+    } else {
+        if (classAverage) classAverage.textContent = '0%';
+        if (topScore) topScore.textContent = '0';
+        if (passPercentage) passPercentage.textContent = '0%';
+    }
 }
 
 function displayRankings(students) {
