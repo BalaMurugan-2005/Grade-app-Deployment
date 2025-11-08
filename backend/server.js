@@ -947,33 +947,33 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
 
 // Student Pages
 app.get('/student/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/Student_DashBoard.html'));
+    res.sendFile(path.join(__dirname, './templates/student/Student_DashBoard.html'));
 });
 
 app.get('/student/result', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/View_Result.html'));
+    res.sendFile(path.join(__dirname, './templates/student/View_Result.html'));
 });
 
 app.get('/student/rank', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/view_rank.html'));
+    res.sendFile(path.join(__dirname, './templates/student/view_rank.html'));
 });
 
 // Teacher Pages
 app.get('/teacher/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/Teacher/Teacher_DashBoard.html'));
+    res.sendFile(path.join(__dirname, './templates/Teacher/Teacher_DashBoard.html'));
 });
 
 app.get('/teacher/marks', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/Teacher/mark_entry.html'));
+    res.sendFile(path.join(__dirname, './templates/Teacher/mark_entry.html'));
 });
 
 app.get('/teacher/rankings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/Teacher/teacher_rank.html'));
+    res.sendFile(path.join(__dirname, './templates/Teacher/teacher_rank.html'));
 });
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
+    res.sendFile(path.join(__dirname, './templates/login.html'));
 });
 
 // Root route - redirect to login
@@ -982,7 +982,7 @@ app.get('/', (req, res) => {
 });
 // Teacher Profile Page
 app.get('/teacher/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
+    res.sendFile(path.join(__dirname, './templates/Teacher/teacher_profile.html'));
 });
 // Handle 404 - Page not found
 app.use((req, res) => {
