@@ -968,12 +968,12 @@ app.get('/teacher/marks', (req, res) => {
 });
 
 app.get('/teacher/rankings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_rank.html'));
+    res.sendFile(path.join(__dirname, '../templates/Teacher/teacher_rank.html'));
 });
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
+    res.sendFile(path.join(__dirname, '../templates/login.html'));
 });
 
 // Root route - redirect to login
