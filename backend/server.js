@@ -10,7 +10,7 @@ const app = express();
 
 // ✅ Allow requests from Live Server on port 5500
 app.use(cors({
-    origin: ['http://127.0.0.1:5500', 'http://localhost:5500','https://grade-app-deployment.onrender.com'],
+    origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'https://grade-app-deployment.onrender.com', '*'],
     credentials: true
 }));
 
@@ -949,29 +949,38 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
 
 // Student Pages
 // ✅ Explicit route for Student Dashboard
-app.get('/frontend/templates/student/Student_DashBoard.html', (req, res) => {
+// ===============================
+// 🏠 Serve HTML Pages (CORRECTED PATHS)
+// ===============================
+
+// Student Pages
+app.get('/student/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
 });
 
 app.get('/student/result', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/View_Result.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/View_Result.html'));
 });
 
 app.get('/student/rank', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/view_rank.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/view_rank.html'));
 });
 
 // Teacher Pages
 app.get('/teacher/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, './templates/Teacher/Teacher_DashBoard.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
 });
 
 app.get('/teacher/marks', (req, res) => {
-    res.sendFile(path.join(__dirname, './templates/Teacher/mark_entry.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/mark_entry.html'));
 });
 
 app.get('/teacher/rankings', (req, res) => {
-    res.sendFile(path.join(__dirname, './templates/Teacher/teacher_rank.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_rank.html'));
+});
+
+app.get('/teacher/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
 });
 
 // Login Page
@@ -983,9 +992,10 @@ app.get('/login', (req, res) => {
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
-// Teacher Profile Page
-app.get('/teacher/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, './templates/Teacher/teacher_profile.html'));
+
+// ✅ Direct access to Student Dashboard HTML file
+app.get('/frontend/templates/student/Student_DashBoard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
 });
 // Handle 404 - Page not found
 app.use((req, res) => {
