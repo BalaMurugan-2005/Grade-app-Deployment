@@ -18,7 +18,7 @@ app.use(express.json());
 
 // ✅ Serve ALL static files from frontend directory
 // ✅ Serve ALL static files from correct directory structure
-app.use(express.static(path.join(__dirname, 'frontend')));
+
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ===============================
@@ -967,7 +967,8 @@ app.get('/student/rank', (req, res) => {
 });
 
 // Teacher Pages
-app.get('/teacher/dashboard', (req, res) => {
+// ✅ Direct access to Teacher Dashboard HTML file
+app.get('/frontend/templates/Teacher/Teacher_DashBoard.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
 });
 
