@@ -1,5 +1,5 @@
 // ✅ Use absolute URL for API calls
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = 'http://localhost:5001';
 
 document.addEventListener('DOMContentLoaded', function() {
     // ✅ Check authentication first
