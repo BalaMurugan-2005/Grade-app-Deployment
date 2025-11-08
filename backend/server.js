@@ -17,6 +17,8 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ Serve ALL static files from frontend directory
+// ✅ Serve ALL static files from correct directory structure
+app.use(express.static(path.join(__dirname, 'frontend')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ===============================
@@ -946,7 +948,8 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
 // ===============================
 
 // Student Pages
-app.get('/student/dashboard', (req, res) => {
+// ✅ Explicit route for Student Dashboard
+app.get('/frontend/templates/student/Student_DashBoard.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
 });
 
