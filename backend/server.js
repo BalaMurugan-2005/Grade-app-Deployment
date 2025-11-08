@@ -115,8 +115,8 @@ app.post('/api/login', async (req, res) => {
             userType: userType,
             user: userDataWithoutPassword,
             redirectUrl: userType === 'student' 
-                ? '/frontend/templates/student/Student_DashBoard.html' 
-                : '/frontend/templates/Teacher/Teacher_DashBoard.html'
+                ? '../frontend/templates/student/Student_DashBoard.html' 
+                : '../frontend/templates/Teacher/Teacher_DashBoard.html'
         });
 
     } catch (error) {
