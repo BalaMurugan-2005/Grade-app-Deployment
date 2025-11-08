@@ -968,7 +968,7 @@ app.get('/student/rank', (req, res) => {
 
 // Teacher Pages
 app.get('/teacher/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '/frontend/templates/Teacher/Teacher_DashBoard.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
 });
 
 app.get('/teacher/marks', (req, res) => {
@@ -981,7 +981,7 @@ app.get('/teacher/rankings', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '/frontend/templates/login.html'));
+    res.sendFile(path.join(__dirname, '/login'));
 });
 
 // Root route - redirect to login
