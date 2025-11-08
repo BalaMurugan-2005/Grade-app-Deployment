@@ -12,7 +12,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// Serve static files from frontend
+// Serve static files from frontend with explicit paths
+app.use('/css', express.static(path.join(__dirname, '../frontend/css')));
+app.use('/js', express.static(path.join(__dirname, '../frontend/js')));
+app.use('/templates', express.static(path.join(__dirname, '../frontend/templates')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API Routes
@@ -28,11 +31,11 @@ app.post('/api/login', (req, res) => {
         if (userType === 'student') {
             const studentData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/student/Student.json'), 'utf8'));
             users = studentData.students || studentData;
-            redirectUrl = '/templates/student/Student_DashBoard.html';
+            redirectUrl = '/student/dashboard';
         } else {
             const teacherData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/teacher/teacherData.json'), 'utf8'));
             users = teacherData;
-            redirectUrl = '/templates/Teacher/Teacher_DashBoard.html';
+            redirectUrl = '/teacher/dashboard';
         }
         
         const user = users.find(u => 
@@ -382,35 +385,46 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
 
-// Handle all other routes - serve the appropriate HTML files
+// Handle specific routes
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
+});
+
+app.get('/student/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
+});
+
+app.get('/student/result', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/View_Result.html'));
+});
+
+app.get('/student/rank', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/view_rank.html'));
+});
+
+app.get('/student/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/profile.html'));
+});
+
+app.get('/teacher/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
+});
+
+app.get('/teacher/marks', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/mark_entry.html'));
+});
+
+app.get('/teacher/rankings', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_rank.html'));
+});
+
+app.get('/teacher/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
+});
+
+// Handle all other routes - serve login page
 app.get('*', (req, res) => {
-    const requestedPath = req.path;
-    
-    // Map routes to HTML files
-    const routeMap = {
-        '/': '/templates/login.html',
-        '/login': '/templates/login.html',
-        '/student/dashboard': '/templates/student/Student_DashBoard.html',
-        '/student/result': '/templates/student/View_Result.html',
-        '/student/rank': '/templates/student/view_rank.html',
-        '/student/profile': '/templates/student/profile.html',
-        '/teacher/dashboard': '/templates/Teacher/Teacher_DashBoard.html',
-        '/teacher/marks': '/templates/Teacher/mark_entry.html',
-        '/teacher/rankings': '/templates/Teacher/teacher_rank.html',
-        '/teacher/profile': '/templates/Teacher/teacher_profile.html'
-    };
-    
-    if (routeMap[requestedPath]) {
-        res.sendFile(path.join(__dirname, '../frontend', routeMap[requestedPath]));
-    } else {
-        // For API routes that don't exist
-        if (requestedPath.startsWith('/api/')) {
-            res.status(404).json({ error: 'API endpoint not found' });
-        } else {
-            // For any other route, serve login page
-            res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
-        }
-    }
+    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
 
 // CRITICAL: Bind to 0.0.0.0 for Render
@@ -419,7 +433,10 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`📍 Host: 0.0.0.0`);
     console.log(`📊 Production URL: https://student-grade-app-h1b9.onrender.com`);
-    console.log(`🔐 Login available at: https://student-grade-app-h1b9.onrender.com`);
-    console.log(`🎓 Student Login: bala_murugan_s20230045 / Bala9677540588#`);
-    console.log(`👩‍🏫 Teacher Login: sarah_johnson / Sarah@7284`);
+    console.log(`🔐 Login Page: https://student-grade-app-h1b9.onrender.com/login`);
+    console.log(`🎓 Student Dashboard: https://student-grade-app-h1b9.onrender.com/student/dashboard`);
+    console.log(`👩‍🏫 Teacher Dashboard: https://student-grade-app-h1b9.onrender.com/teacher/dashboard`);
+    console.log(`🔑 Test Credentials:`);
+    console.log(`   Student: bala_murugan_s20230045 / Bala9677540588#`);
+    console.log(`   Teacher: sarah_johnson / Sarah@7284`);
 });
