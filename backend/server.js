@@ -947,7 +947,7 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
 
 // Student Pages
 app.get('/student/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/student/Student_DashBoard.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
 });
 
 app.get('/student/result', (req, res) => {
@@ -973,7 +973,7 @@ app.get('/teacher/rankings', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/login.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
 
 // Root route - redirect to login
