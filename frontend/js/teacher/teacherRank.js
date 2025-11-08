@@ -1,5 +1,5 @@
 // ✅ Use absolute URL for API calls
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = 'http://localhost:5001';
 
 // DOM Elements
 const hamburger = document.getElementById('hamburger');
