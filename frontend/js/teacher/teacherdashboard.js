@@ -1,5 +1,5 @@
 // ✅ Use absolute URL for API calls
-const API_BASE_URL = 'http://localhost:5001';
+const API_BASE_URL = 'https://grade-app-deployment.onrender.com';
 
 document.addEventListener('DOMContentLoaded', function() {
     // ✅ Check authentication first
