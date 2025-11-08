@@ -981,7 +981,7 @@ app.get('/teacher/rankings', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
+    res.sendFile(path.join(__dirname, './frontend/templates/login.html'));
 });
 
 // Root route - redirect to login
