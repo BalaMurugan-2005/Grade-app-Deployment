@@ -179,8 +179,8 @@ async function checkExistingSession() {
                     // User is already authenticated, redirect to dashboard
                     preventBackNavigation();
                     const redirectUrl = session.userType === 'student' 
-                        ? '../templates/student/Student_DashBoard.html'
-                        : '../templates/Teacher/Teacher_DashBoard.html';
+                        ? './templates/student/Student_DashBoard.html'
+                        : './templates/Teacher/Teacher_DashBoard.html';
                     
                     window.location.href = redirectUrl;
                     return;
