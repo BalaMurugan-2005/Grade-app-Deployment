@@ -19,7 +19,7 @@ app.use(express.json());
 // ✅ Serve ALL static files from frontend directory
 // ✅ Serve ALL static files from correct directory structure
 
-app.use(express.static(path.join(__dirname, './frontend')));
+app.use(express.static(path.join(__dirname, '/frontend')));
 
 // ===============================
 // 📁 File Paths Configuration (UPDATED FOR YOUR STRUCTURE)
