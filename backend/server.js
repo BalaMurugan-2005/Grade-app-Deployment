@@ -947,24 +947,24 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
 
 // Student Pages
 app.get('/student/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
+    res.sendFile(path.join(__dirname, '../templates/student/Student_DashBoard.html'));
 });
 
 app.get('/student/result', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/student/View_Result.html'));
+    res.sendFile(path.join(__dirname, '../templates/student/View_Result.html'));
 });
 
 app.get('/student/rank', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/student/view_rank.html'));
+    res.sendFile(path.join(__dirname, '../templates/student/view_rank.html'));
 });
 
 // Teacher Pages
 app.get('/teacher/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
+    res.sendFile(path.join(__dirname, '../templates/Teacher/Teacher_DashBoard.html'));
 });
 
 app.get('/teacher/marks', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/mark_entry.html'));
+    res.sendFile(path.join(__dirname, '../templates/Teacher/mark_entry.html'));
 });
 
 app.get('/teacher/rankings', (req, res) => {
