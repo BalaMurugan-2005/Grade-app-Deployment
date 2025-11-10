@@ -108,7 +108,7 @@ function initializeApp() {
     // Dashboard redirect
     if (dashboardBtn) {
         dashboardBtn.addEventListener('click', () => {
-            window.location.href = 'Student_DashBoard.html';
+            window.location.href = 'https://grade-app-deployment.onrender.com';
         });
     }
 
