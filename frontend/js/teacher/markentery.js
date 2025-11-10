@@ -80,7 +80,7 @@ async function checkAuthentication() {
 function redirectToLogin() {
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    window.location.href = '/frontend/templates/login.html';
+    window.location.href = '../../templates/login.html';
 }
 
 async function initializeApp() {
@@ -225,7 +225,7 @@ async function handleLogout() {
     } finally {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        window.location.href = '/frontend/templates/login.html';
+        window.location.href = '../../templates/login.html';
     }
 }
 
