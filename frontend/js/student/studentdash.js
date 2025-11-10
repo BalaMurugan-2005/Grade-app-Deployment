@@ -102,7 +102,7 @@ async function checkAuthentication() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="../frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
+    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
     
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
