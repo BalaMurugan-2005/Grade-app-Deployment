@@ -43,8 +43,11 @@ async function checkAuthentication() {
 }
 
 function redirectToLogin() {
+    // Clear any existing session
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
+    
+    // Redirect to login
     window.location.href = '../../templates/login.html';
 }
 
@@ -138,7 +141,7 @@ async function handleLogout() {
     } finally {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        window.location.href = '../../templates/login.html';
+        window.location.href = '../login';
     }
 }
 
