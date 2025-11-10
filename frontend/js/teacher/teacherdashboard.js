@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             // Handle logout link separately
-            if (this.getAttribute('href') === '/frontend/templates/login.html' || 
+            if (this.getAttribute('href') === '../../templates/login.html'' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
                 handleLogout();
@@ -111,7 +111,7 @@ async function checkAuthentication() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="/frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
+    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
     
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -137,7 +137,7 @@ async function handleLogout() {
         sessionStorage.removeItem('isAuthenticated');
         
         // Redirect to login
-        window.location.href = '/frontend/templates/login.html';
+        window.location.href = '../../templates/login.html';
     }
 }
 
@@ -147,7 +147,7 @@ function redirectToLogin() {
     sessionStorage.removeItem('isAuthenticated');
     
     // Redirect to login
-    window.location.href = '/frontend/templates/login.html';
+    window.location.href = '../../templates/login.html';
 }
 
 function updateUserInfo(user) {
