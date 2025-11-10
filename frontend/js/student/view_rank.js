@@ -45,7 +45,7 @@ async function checkAuthentication() {
 function redirectToLogin() {
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    window.location.href = '/frontend/templates/login.html';
+    window.location.href = '../../templates/login.html';
 }
 
 function initializeApp() {
@@ -120,7 +120,7 @@ function initializeApp() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="/frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
+    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
     
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -143,7 +143,7 @@ async function handleLogout() {
     } finally {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        window.location.href = '/frontend/templates/login.html';
+        window.location.href = '../../templates/login.html';
     }
 }
 
