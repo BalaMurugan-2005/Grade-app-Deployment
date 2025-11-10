@@ -166,34 +166,37 @@ document.addEventListener('DOMContentLoaded', function() {
 // Check if user already has an active session
 async function checkExistingSession() {
     const currentSession = localStorage.getItem('currentSession');
-    
-    if (currentSession) {
-        try {
-            const session = JSON.parse(currentSession);
-            const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
-            
-            if (response.ok) {
-                const authData = await response.json();
-                
-                if (authData.authenticated) {
-                    // User is already authenticated, redirect to dashboard
-                    preventBackNavigation();
-                    const redirectUrl = session.userType === 'student' 
-                        ? './login.html'
-                        : './templates/Teacher/Teacher_DashBoard.html'
-                    
-                    window.location.href = redirectUrl;
-                    return;
-                }
-            }
-            // Session is invalid, clear it
-            clearSession();
-        } catch (error) {
-            console.error('Session check error:', error);
+
+    // 🚫 No session? Stay on login page.
+    if (!currentSession) return;
+
+    try {
+        const session = JSON.parse(currentSession);
+
+        // Validate with your backend
+        const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        if (!response.ok) throw new Error('Auth check failed');
+
+        const authData = await response.json();
+
+        // ✅ Only redirect if still authenticated
+        if (authData.authenticated) {
+            preventBackNavigation();
+            const redirectUrl =
+                session.userType === 'student'
+                    ? './templates/Students/Student_DashBoard.html'
+                    : './templates/Teacher/Teacher_DashBoard.html';
+            window.location.href = redirectUrl;
+        } else {
+            // ❌ Session expired or invalid → clear and stay
             clearSession();
         }
+    } catch (error) {
+        console.error('Session check error:', error);
+        clearSession();
     }
 }
+
 
 // Prevent back button navigation
 function preventBackNavigation() {
