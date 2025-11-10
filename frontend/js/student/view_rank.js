@@ -7,35 +7,35 @@ document.addEventListener('DOMContentLoaded', function() {
 // Authentication Functions
 async function checkAuthentication() {
     const currentSession = localStorage.getItem('currentSession');
-    
+
     if (!currentSession) {
         redirectToLogin();
         return;
     }
-    
+
     try {
         const session = JSON.parse(currentSession);
         if (session.userType !== 'student') {
             redirectToLogin();
             return;
         }
-        
+
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
-        
+
         if (!response.ok) {
             throw new Error('Authentication check failed');
         }
-        
+
         const authData = await response.json();
-        
+
         if (!authData.authenticated) {
             redirectToLogin();
             return;
         }
-        
+
         // Initialize app after successful authentication
         initializeApp();
-        
+
     } catch (error) {
         console.error('Auth check error:', error);
         redirectToLogin();
@@ -73,7 +73,7 @@ function initializeApp() {
     if (profile) {
         profile.addEventListener('click', () => profileDropdown.classList.toggle('active'));
     }
-    
+
     document.addEventListener('click', (e) => {
         if (profile && !profile.contains(e.target) && profileDropdown && !profileDropdown.contains(e.target)) {
             profileDropdown.classList.remove('active');
@@ -121,7 +121,7 @@ function initializeApp() {
 
 function setupLogout() {
     const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
-    
+
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -151,10 +151,10 @@ async function handleLogout() {
 async function loadRankingData() {
     try {
         console.log('Loading ranking data...');
-        
+
         const res = await fetch(`${API_BASE_URL}/api/rankings`);
         if (!res.ok) throw new Error(`Failed to load rankings: ${res.status}`);
-        
+
         const data = await res.json();
         console.log('Ranking data received:', data);
 
@@ -164,7 +164,7 @@ async function loadRankingData() {
             redirectToLogin();
             return;
         }
-        
+
         const session = JSON.parse(currentSession);
         const yourId = session.user.id;
 
@@ -247,7 +247,7 @@ function showNotification(message, type) {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.student-rank-notification');
     existingNotifications.forEach(notification => notification.remove());
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `student-rank-notification alert-${type}`;
@@ -266,7 +266,7 @@ function showNotification(message, type) {
         font-family: 'Poppins', sans-serif;
         font-size: 0.9em;
     `;
-    
+
     // Set background color based on type
     if (type === 'success') {
         notification.style.backgroundColor = '#28a745';
@@ -278,14 +278,14 @@ function showNotification(message, type) {
     } else {
         notification.style.backgroundColor = '#17a2b8';
     }
-    
+
     notification.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Add CSS animation if not already added
     if (!document.querySelector('#rank-notification-animations')) {
         const style = document.createElement('style');
@@ -314,7 +314,7 @@ function showNotification(message, type) {
         `;
         document.head.appendChild(style);
     }
-    
+
     // Remove notification after 4 seconds
     setTimeout(() => {
         if (notification.parentNode) {
