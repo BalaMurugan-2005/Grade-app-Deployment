@@ -84,7 +84,7 @@ function redirectToLogin() {
     console.log('Redirecting to login...');
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    window.location.href = '../../templates/login.html';
+    window.location.href = '../login.html';
 }
 
 function initializeApp() {
