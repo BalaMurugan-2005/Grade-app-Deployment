@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.sidebar-menu a').forEach(link => {
         link.addEventListener('click', function(e) {
             // Handle logout link separately
-            if (this.getAttribute('href') === '../frontend/templates/login.html' || 
+            if (this.getAttribute('href') === '../../templates/login.html' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
                 handleLogout();
