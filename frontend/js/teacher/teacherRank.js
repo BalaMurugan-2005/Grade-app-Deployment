@@ -1,4 +1,3 @@
-// ✅ Use absolute URL for API calls
 const API_BASE_URL = 'https://grade-app-deployment.onrender.com';
 
 // DOM Elements
@@ -26,35 +25,35 @@ document.addEventListener('DOMContentLoaded', function() {
 // ✅ Authentication Functions
 async function checkAuthentication() {
     const currentSession = localStorage.getItem('currentSession');
-    
+
     if (!currentSession) {
         redirectToLogin();
         return;
     }
-    
+
     try {
         const session = JSON.parse(currentSession);
         if (session.userType !== 'teacher') {
             redirectToLogin();
             return;
         }
-        
+
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
-        
+
         if (!response.ok) {
             throw new Error('Authentication check failed');
         }
-        
+
         const authData = await response.json();
-        
+
         if (!authData.authenticated) {
             redirectToLogin();
             return;
         }
-        
+
         // Initialize app after successful authentication
         initializeApp();
-        
+
     } catch (error) {
         console.error('Auth check error:', error);
         redirectToLogin();
@@ -64,7 +63,7 @@ async function checkAuthentication() {
 function redirectToLogin() {
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    window.location.href = '../login.html';
+    window.location.href = '/frontend/templates/login.html';
 }
 
 function initializeApp() {
@@ -78,7 +77,7 @@ function setupNavigation() {
         hamburger.addEventListener('click', function() {
             sidebar.classList.toggle('active');
             mainContent.classList.toggle('sidebar-open');
-            
+
             const icon = hamburger.querySelector('i');
             if (sidebar.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -89,19 +88,19 @@ function setupNavigation() {
             }
         });
     }
-    
+
     if (profile) {
         profile.addEventListener('click', function() {
             profileDropdown.classList.toggle('active');
         });
     }
-    
+
     document.addEventListener('click', function(event) {
         if (profile && !profile.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
             profileDropdown.classList.remove('active');
         }
     });
-    
+
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -111,7 +110,7 @@ function setupNavigation() {
                 handleLogout();
                 return;
             }
-            
+
             if (window.innerWidth < 992) {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-open');
@@ -137,16 +136,16 @@ async function handleLogout() {
     } finally {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        window.location.href = '../../templates/login.html';
+        window.location.href = '/frontend/templates/login.html';
     }
 }
 
 async function loadRankings() {
     try {
         console.log('Loading rankings data...');
-        
+
         const rankingsResponse = await fetch(`${API_BASE_URL}/api/rankings`);
-        
+
         if (!rankingsResponse.ok) {
             throw new Error(`Failed to load rankings: ${rankingsResponse.status}`);
         }
@@ -157,17 +156,17 @@ async function loadRankings() {
         // Extract rankings array and stats from the response
         rankingsData = rankData.rankings || [];
         const stats = rankData.stats || {};
-        
+
         // Update stats using the stats from the API response
         updateStats(stats);
-        
+
         // Display rankings
         displayRankings(rankingsData);
-        
+
     } catch (error) {
         console.error('Error loading rankings:', error);
         showNotification(`Failed to load rankings data: ${error.message}`, 'danger');
-        
+
         // Show error in table
         if (rankingBody) {
             rankingBody.innerHTML = `
@@ -197,17 +196,17 @@ function calculateStatistics(students, stats) {
             unmarkedStudents: 0
         };
     }
-    
+
     // Use stats from API response for total students count
     const totalStudentsCount = stats.totalStudents || students.length;
-    
+
     // Filter only marked students with valid marks for calculations
     const markedStudents = students.filter(student => 
         student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined
     );
-    
+
     const unmarkedStudents = totalStudentsCount - markedStudents.length;
-    
+
     if (markedStudents.length === 0) {
         return {
             totalStudents: totalStudentsCount,
@@ -218,14 +217,14 @@ function calculateStatistics(students, stats) {
             unmarkedStudents: unmarkedStudents
         };
     }
-    
+
     // Calculate statistics only for marked students
     const totalPercentage = markedStudents.reduce((sum, student) => sum + (student.percentage || 0), 0);
     const classAverage = totalPercentage / markedStudents.length;
     const topScore = Math.max(...markedStudents.map(student => student.totalMarks || 0));
     const passedStudents = markedStudents.filter(student => student.status === 'Pass').length;
     const passPercentage = (passedStudents / markedStudents.length) * 100;
-    
+
     return {
         totalStudents: totalStudentsCount,
         classAverage: Math.round(classAverage * 10) / 10,
@@ -239,19 +238,19 @@ function calculateStatistics(students, stats) {
 function updateStats(stats) {
     // Use the stats directly from the API response
     if (totalStudents) totalStudents.textContent = stats.totalStudents || 0;
-    
+
     // Calculate class average, top score, and pass percentage from rankings data
     const markedStudents = rankingsData.filter(student => 
         student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined
     );
-    
+
     if (markedStudents.length > 0) {
         const totalPercentage = markedStudents.reduce((sum, student) => sum + (student.percentage || 0), 0);
         const classAvg = totalPercentage / markedStudents.length;
         const topScr = Math.max(...markedStudents.map(student => student.totalMarks || 0));
         const passedStudents = markedStudents.filter(student => student.status === 'Pass').length;
         const passPerc = (passedStudents / markedStudents.length) * 100;
-        
+
         if (classAverage) classAverage.textContent = `${Math.round(classAvg * 10) / 10}%`;
         if (topScore) topScore.textContent = topScr;
         if (passPercentage) passPercentage.textContent = `${Math.round(passPerc)}%`;
@@ -264,9 +263,9 @@ function updateStats(stats) {
 
 function displayRankings(students) {
     if (!rankingBody) return;
-    
+
     rankingBody.innerHTML = '';
-    
+
     if (!students || students.length === 0) {
         rankingBody.innerHTML = `
             <tr>
@@ -281,12 +280,12 @@ function displayRankings(students) {
         `;
         return;
     }
-    
+
     // Filter only marked students and sort by rank
     const markedStudents = students
         .filter(student => student.isMarked && student.rank)
         .sort((a, b) => (a.rank || 999) - (b.rank || 999));
-    
+
     if (markedStudents.length === 0) {
         rankingBody.innerHTML = `
             <tr>
@@ -301,11 +300,11 @@ function displayRankings(students) {
         `;
         return;
     }
-    
+
     markedStudents.forEach((student) => {
         const row = document.createElement('tr');
         row.className = 'rank-row';
-        
+
         // Add medal for top 3 ranks (same as student view)
         let rankDisplay = `<span class="rank-cell">${student.rank}</span>`;
         if (student.rank === 1) {
@@ -315,7 +314,7 @@ function displayRankings(students) {
         } else if (student.rank === 3) {
             rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-bronze"></i> ${student.rank}</div>`;
         }
-        
+
         row.innerHTML = `
             <td>${rankDisplay}</td>
             <td>
@@ -331,14 +330,14 @@ function displayRankings(students) {
             <td class="average-cell">${student.percentage || 0}%</td>
             <td><span class="grade-badge ${getGradeClass(student.grade)}">${student.grade || 'N/A'}</span></td>
         `;
-        
+
         rankingBody.appendChild(row);
     });
 }
 
 function getGradeClass(grade) {
     if (!grade) return 'grade-unknown';
-    
+
     switch(grade.toUpperCase()) {
         case 'A+': return 'grade-a-plus';
         case 'A': return 'grade-a';
@@ -359,14 +358,14 @@ function setupEventListeners() {
             filterRankings(this.value);
         });
     }
-    
+
     // Refresh button
     if (refreshBtn) {
         refreshBtn.addEventListener('click', function() {
             const originalText = refreshBtn.innerHTML;
             refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
             refreshBtn.disabled = true;
-            
+
             loadRankings().finally(() => {
                 refreshBtn.innerHTML = originalText;
                 refreshBtn.disabled = false;
@@ -374,7 +373,7 @@ function setupEventListeners() {
             });
         });
     }
-    
+
     // Export button
     if (exportBtn) {
         exportBtn.addEventListener('click', function() {
@@ -388,12 +387,12 @@ function filterRankings(searchTerm) {
         displayRankings(rankingsData);
         return;
     }
-    
+
     const filteredStudents = rankingsData.filter(student => 
         student.name && student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.rollNo && student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     displayRankings(filteredStudents);
 }
 
@@ -401,15 +400,15 @@ async function exportToCSV() {
     try {
         // Filter only marked students for export
         const markedStudents = rankingsData.filter(student => student.isMarked && student.rank);
-        
+
         if (markedStudents.length === 0) {
             showNotification('No data available to export', 'warning');
             return;
         }
-        
+
         // Create CSV content from current rankings data
         let csvContent = "Rank,Student Name,Roll No,Class,Section,Total Marks,Percentage,Grade,Status\n";
-        
+
         markedStudents.forEach((student) => {
             const row = [
                 student.rank,
@@ -424,7 +423,7 @@ async function exportToCSV() {
             ];
             csvContent += row.join(',') + '\n';
         });
-        
+
         // Create download link
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
@@ -436,7 +435,7 @@ async function exportToCSV() {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        
+
         showNotification('Rankings exported successfully!', 'success');
     } catch (error) {
         console.error('Export error:', error);
@@ -448,7 +447,7 @@ function showNotification(message, type) {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.custom-notification');
     existingNotifications.forEach(notification => notification.remove());
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `custom-notification alert-${type}`;
@@ -466,7 +465,7 @@ function showNotification(message, type) {
         animation: slideInRight 0.3s ease-out;
         font-family: 'Poppins', sans-serif;
     `;
-    
+
     // Set background color based on type
     if (type === 'success') {
         notification.style.backgroundColor = '#28a745';
@@ -478,14 +477,14 @@ function showNotification(message, type) {
     } else {
         notification.style.backgroundColor = '#17a2b8';
     }
-    
+
     notification.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Add CSS animation if not already added
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
@@ -514,7 +513,7 @@ function showNotification(message, type) {
         `;
         document.head.appendChild(style);
     }
-    
+
     // Remove notification after 4 seconds
     setTimeout(() => {
         if (notification.parentNode) {
