@@ -108,7 +108,7 @@ function initializeApp() {
     // Dashboard redirect
     if (dashboardBtn) {
         dashboardBtn.addEventListener('click', () => {
-            window.location.href = '../../templates/login.html';
+            window.location.href = '../../templates/student/Student_DashBoard.html';
         });
     }
 
@@ -120,7 +120,7 @@ function initializeApp() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
+    const logoutLinks = document.querySelectorAll('a[href="../login.html"], .logout-btn, .fa-sign-out-alt');
 
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
