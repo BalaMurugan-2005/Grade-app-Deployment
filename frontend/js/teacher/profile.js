@@ -3,7 +3,7 @@ const API_BASE_URL = 'https://grade-app-deployment.onrender.com';
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication first
     checkAuthentication();
-    
+
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
@@ -42,13 +42,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.sidebar-menu a').forEach(link => {
         link.addEventListener('click', function(e) {
             // Handle logout link separately
-            if (this.getAttribute('href') === '../../templates/login.html' || 
+            if (this.getAttribute('href') === '/frontend/templates/login.html' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
                 handleLogout();
                 return;
             }
-            
+
             if (window.innerWidth < 992) {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-open');
@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Setup logout functionality
     setupLogout();
-    
+
     // Load teacher profile data
     loadTeacherProfile();
-    
+
     // Handle password change form
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', function(e) {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             changePassword();
         });
     }
-    
+
     // Handle cancel button
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function() {
@@ -84,32 +84,32 @@ document.addEventListener('DOMContentLoaded', function() {
 // Authentication Functions
 async function checkAuthentication() {
     const currentSession = localStorage.getItem('currentSession');
-    
+
     if (!currentSession) {
         redirectToLogin();
         return;
     }
-    
+
     try {
         const session = JSON.parse(currentSession);
         if (session.userType !== 'teacher') {
             redirectToLogin();
             return;
         }
-        
+
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
-        
+
         if (!response.ok) {
             throw new Error('Authentication check failed');
         }
-        
+
         const authData = await response.json();
-        
+
         if (!authData.authenticated) {
             redirectToLogin();
             return;
         }
-        
+
     } catch (error) {
         console.error('Auth check error:', error);
         redirectToLogin();
@@ -117,8 +117,8 @@ async function checkAuthentication() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
-    
+    const logoutLinks = document.querySelectorAll('a[href="/frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
+
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -141,9 +141,9 @@ async function handleLogout() {
         // Clear session data
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        
+
         // Redirect to login
-        window.location.href = '../../templates/login.html';
+        window.location.href = '/frontend/templates/login.html';
     }
 }
 
@@ -151,9 +151,9 @@ function redirectToLogin() {
     // Clear any existing session
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    
+
     // Redirect to login
-    window.location.href = '../../templates/login.html';
+    window.location.href = '/frontend/templates/login.html';
 }
 
 // Load teacher profile data
@@ -165,7 +165,7 @@ async function loadTeacherProfile() {
             redirectToLogin();
             return;
         }
-        
+
         const session = JSON.parse(currentSession);
         const teacherId = session.user.id;
 
@@ -173,19 +173,19 @@ async function loadTeacherProfile() {
 
         // Try the main teacher profile endpoint first
         const response = await fetch(`${API_BASE_URL}/api/teacher/${teacherId}/profile`);
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('❌ API Error:', response.status, errorText);
             throw new Error(`Failed to fetch teacher profile: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log("✅ Teacher profile data received:", data);
 
         // Update the UI with the data
         updateProfileUI(data);
-        
+
     } catch (err) {
         console.error("❌ Error fetching teacher profile:", err);
         showNotification('Error loading profile data: ' + err.message, 'error');
@@ -199,7 +199,7 @@ function updateProfileUI(data) {
     document.getElementById('teacherName').textContent = data.name || 'N/A';
     document.getElementById('teacherDesignation').textContent = `Designation: ${data.designation || 'N/A'}`;
     document.getElementById('teacherId').textContent = `Teacher ID: ${data.id || 'N/A'}`;
-    
+
     // Update badges
     const badgesContainer = document.getElementById('profileBadges');
     if (data.badges && data.badges.length > 0) {
@@ -219,16 +219,16 @@ function updateProfileUI(data) {
 
     // Update personal information
     updatePersonalInfo(data);
-    
+
     // Update professional information  
     updateProfessionalInfo(data);
-    
+
     // Update teaching statistics
     updateTeachingStats(data);
-    
+
     // Update subjects handled
     updateSubjects(data);
-    
+
     // Update contact information
     updateContactInfo(data);
 }
@@ -399,23 +399,23 @@ async function changePassword() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    
+
     // Basic validation
     if (!currentPassword || !newPassword || !confirmPassword) {
         showNotification('Please fill in all fields', 'error');
         return;
     }
-    
+
     if (newPassword !== confirmPassword) {
         showNotification('New passwords do not match', 'error');
         return;
     }
-    
+
     if (newPassword.length < 6) {
         showNotification('New password must be at least 6 characters', 'error');
         return;
     }
-    
+
     try {
         // Get teacher ID from session
         const currentSession = localStorage.getItem('currentSession');
@@ -423,10 +423,10 @@ async function changePassword() {
             redirectToLogin();
             return;
         }
-        
+
         const session = JSON.parse(currentSession);
         const teacherId = session.user.id;
-        
+
         // Send password change request to backend
         const response = await fetch(`${API_BASE_URL}/api/teacher/${teacherId}/change-password`, {
             method: 'POST',
@@ -438,17 +438,17 @@ async function changePassword() {
                 newPassword
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(result.message || 'Failed to change password');
         }
-        
+
         // Success
         showNotification('Password changed successfully', 'success');
         document.getElementById('changePasswordForm').reset();
-        
+
     } catch (error) {
         console.error('Error changing password:', error);
         showNotification(error.message || 'Failed to change password', 'error');
@@ -467,7 +467,7 @@ function showNotification(message, type) {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -475,14 +475,14 @@ function showNotification(message, type) {
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Show notification
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
     // Remove notification after 4 seconds
     setTimeout(() => {
         notification.classList.remove('show');
