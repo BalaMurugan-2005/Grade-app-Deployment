@@ -43,11 +43,8 @@ async function checkAuthentication() {
 }
 
 function redirectToLogin() {
-    // Clear any existing session
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    
-    // Redirect to login
     window.location.href = '../../templates/login.html';
 }
 
@@ -108,7 +105,12 @@ function initializeApp() {
         });
     }
 
-   
+    // Dashboard redirect
+    if (dashboardBtn) {
+        dashboardBtn.addEventListener('click', () => {
+            window.location.href = '../../templates/login.html';
+        });
+    }
 
     // Setup logout functionality
     setupLogout();
@@ -141,7 +143,7 @@ async function handleLogout() {
     } finally {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        window.location.href = '../login';
+        window.location.href = '../../templates/login.html';
     }
 }
 
