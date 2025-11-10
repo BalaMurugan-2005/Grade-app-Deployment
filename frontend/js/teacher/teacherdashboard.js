@@ -1,10 +1,9 @@
-// ✅ Use absolute URL for API calls
 const API_BASE_URL = 'https://grade-app-deployment.onrender.com';
 
 document.addEventListener('DOMContentLoaded', function() {
     // ✅ Check authentication first
     checkAuthentication();
-    
+
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
@@ -47,13 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             // Handle logout link separately
-            if (this.getAttribute('href') === '../../templates/login.html'' || 
+            if (this.getAttribute('href') === '/frontend/templates/login.html' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
                 handleLogout();
                 return;
             }
-            
+
             if (window.innerWidth < 992) {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-open');
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ✅ Setup logout functionality
     setupLogout();
-    
+
     // ✅ Load teacher data when page opens
     loadTeacherData();
 });
@@ -75,35 +74,35 @@ document.addEventListener('DOMContentLoaded', function() {
 // ✅ Authentication Functions
 async function checkAuthentication() {
     const currentSession = localStorage.getItem('currentSession');
-    
+
     if (!currentSession) {
         redirectToLogin();
         return;
     }
-    
+
     try {
         const session = JSON.parse(currentSession);
         if (session.userType !== 'teacher') {
             redirectToLogin();
             return;
         }
-        
+
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
-        
+
         if (!response.ok) {
             throw new Error('Authentication check failed');
         }
-        
+
         const authData = await response.json();
-        
+
         if (!authData.authenticated) {
             redirectToLogin();
             return;
         }
-        
+
         // Update user info in dashboard
         updateUserInfo(authData.user);
-        
+
     } catch (error) {
         console.error('Auth check error:', error);
         redirectToLogin();
@@ -111,8 +110,8 @@ async function checkAuthentication() {
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="../../templates/login.html"], .logout-btn, .fa-sign-out-alt');
-    
+    const logoutLinks = document.querySelectorAll('a[href="/frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
+
     logoutLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -135,9 +134,9 @@ async function handleLogout() {
         // Clear session data
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
-        
+
         // Redirect to login
-        window.location.href = '../../templates/login.html';
+        window.location.href = '/frontend/templates/login.html';
     }
 }
 
@@ -145,9 +144,9 @@ function redirectToLogin() {
     // Clear any existing session
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
-    
+
     // Redirect to login
-    window.location.href = '../../templates/login.html';
+    window.location.href = '/frontend/templates/login.html';
 }
 
 function updateUserInfo(user) {
@@ -169,14 +168,14 @@ async function loadTeacherData() {
             redirectToLogin();
             return;
         }
-        
+
         const session = JSON.parse(currentSession);
         const teacherId = session.user.id;
 
         console.log('Fetching teacher data for ID:', teacherId);
 
         const response = await fetch(`${API_BASE_URL}/api/teacher/${teacherId}`);
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`Failed to fetch teacher data: ${response.status} ${errorText}`);
@@ -188,7 +187,7 @@ async function loadTeacherData() {
 
         // ✅ Display teacher details in dashboard
         const teacherDetailsContainer = document.querySelector('.teacher-details');
-        
+
         if (teacherDetailsContainer) {
             teacherDetailsContainer.innerHTML = `
                 <div class="detail-item">
@@ -215,11 +214,11 @@ async function loadTeacherData() {
         } else {
             console.error('Teacher details container not found');
         }
-        
+
     } catch (error) {
         console.error('Error loading teacher data:', error);
         const teacherDetailsContainer = document.querySelector('.teacher-details');
-        
+
         if (teacherDetailsContainer) {
             teacherDetailsContainer.innerHTML = `
                 <div class="error-message">
