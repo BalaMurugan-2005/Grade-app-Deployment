@@ -105,10 +105,10 @@ function initializeApp() {
         });
     }
 
-    // Dashboard redirect
+    // Dashboard redirect - Fixed to go to actual dashboard
     if (dashboardBtn) {
         dashboardBtn.addEventListener('click', () => {
-            window.location.href = '../../templates/login.html';
+            window.location.href = '../../templates/student_dashboard.html';
         });
     }
 
