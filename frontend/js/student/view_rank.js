@@ -1,54 +1,95 @@
 const API_BASE_URL = 'https://grade-app-deployment.onrender.com';
+
+// Global state variables
+let isRefreshing = false;
+let currentRefreshController = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication first
+    console.log('DOM loaded - starting authentication check');
     checkAuthentication();
 });
 
 // Authentication Functions
 async function checkAuthentication() {
+    console.log('Checking authentication...');
+    
     const currentSession = localStorage.getItem('currentSession');
-
+    
     if (!currentSession) {
+        console.warn('No session found in localStorage');
         redirectToLogin();
         return;
     }
 
     try {
         const session = JSON.parse(currentSession);
-        if (session.userType !== 'student') {
+        
+        if (!validateSession(session)) {
+            console.warn('Invalid session structure');
             redirectToLogin();
             return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        if (session.userType !== 'student') {
+            console.warn('Invalid user type:', session.userType);
+            redirectToLogin();
+            return;
+        }
+
+        // Safe URL construction
+        const params = new URLSearchParams({
+            userType: encodeURIComponent(session.userType),
+            userId: encodeURIComponent(session.user.id)
+        });
+        
+        const response = await fetch(`${API_BASE_URL}/api/check-auth?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
 
         if (!response.ok) {
-            throw new Error('Authentication check failed');
+            throw new Error(`Authentication check failed: ${response.status} ${response.statusText}`);
         }
 
         const authData = await response.json();
 
         if (!authData.authenticated) {
+            console.warn('Server authentication failed');
             redirectToLogin();
             return;
         }
 
-        // Initialize app after successful authentication
+        console.log('Authentication successful');
         initializeApp();
 
     } catch (error) {
         console.error('Auth check error:', error);
+        showNotification('Authentication error - please login again', 'danger');
         redirectToLogin();
     }
 }
 
+function validateSession(session) {
+    return session && 
+           session.userType && 
+           session.user && 
+           session.user.id &&
+           typeof session.user.id === 'string' &&
+           typeof session.userType === 'string';
+}
+
 function redirectToLogin() {
+    console.log('Redirecting to login...');
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
     window.location.href = '../../templates/login.html';
 }
 
 function initializeApp() {
+    console.log('Initializing application...');
+    
     const hamburger = document.getElementById('hamburger');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
@@ -58,51 +99,56 @@ function initializeApp() {
     const refreshBtn = document.getElementById('refreshBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
 
+    // Validate critical DOM elements
+    if (!hamburger || !sidebar || !mainContent) {
+        console.error('Critical DOM elements missing. Required: hamburger, sidebar, mainContent');
+        showNotification('Page initialization failed - missing elements', 'danger');
+        return;
+    }
+
     // Sidebar toggle
-    if (hamburger) {
-        hamburger.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            mainContent.classList.toggle('sidebar-open');
-            const icon = hamburger.querySelector('i');
+    hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        mainContent.classList.toggle('sidebar-open');
+        const icon = hamburger.querySelector('i');
+        if (icon) {
             icon.classList.toggle('fa-bars');
             icon.classList.toggle('fa-times');
-        });
-    }
-
-    // Profile dropdown toggle
-    if (profile) {
-        profile.addEventListener('click', () => profileDropdown.classList.toggle('active'));
-    }
-
-    document.addEventListener('click', (e) => {
-        if (profile && !profile.contains(e.target) && profileDropdown && !profileDropdown.contains(e.target)) {
-            profileDropdown.classList.remove('active');
         }
     });
 
-    // Search filter
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const term = this.value.toLowerCase();
-            document.querySelectorAll('.rank-row').forEach(row => {
-                const name = row.querySelector('.student-name')?.textContent.toLowerCase() || '';
-                const roll = row.querySelector('.student-roll')?.textContent.toLowerCase() || '';
-                row.style.display = name.includes(term) || roll.includes(term) ? '' : 'none';
-            });
+    // Profile dropdown toggle
+    if (profile && profileDropdown) {
+        profile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('active');
         });
     }
 
-    // Refresh
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async function() {
-            const old = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            refreshBtn.disabled = true;
-            await loadRankingData();
-            refreshBtn.innerHTML = old;
-            refreshBtn.disabled = false;
-            showNotification('Rankings updated successfully!', 'success');
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (profileDropdown && profileDropdown.classList.contains('active')) {
+            if (!profile.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('active');
+            }
+        }
+    });
+
+    // Search filter with debounce
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const term = this.value.toLowerCase().trim();
+                filterRankingRows(term);
+            }, 300);
         });
+    }
+
+    // Refresh button with loading state
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', handleManualRefresh);
     }
 
     // Dashboard redirect
@@ -115,32 +161,120 @@ function initializeApp() {
     // Setup logout functionality
     setupLogout();
 
-    // Load ranking data
+    // Add rank styles
+    addRankStyles();
+
+    // Load initial ranking data
     loadRankingData();
+
+    console.log('Application initialized successfully');
+}
+
+function filterRankingRows(searchTerm) {
+    const rows = document.querySelectorAll('.rank-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.student-name')?.textContent?.toLowerCase() || '';
+        const roll = row.querySelector('.student-roll')?.textContent?.toLowerCase() || '';
+        const isVisible = name.includes(searchTerm) || roll.includes(searchTerm);
+        
+        row.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+    });
+
+    // Show no results message if needed
+    showNoResultsMessage(visibleCount === 0 && searchTerm.length > 0);
+}
+
+function showNoResultsMessage(show) {
+    let noResultsMsg = document.getElementById('noResultsMessage');
+    
+    if (show && !noResultsMsg) {
+        noResultsMsg = document.createElement('div');
+        noResultsMsg.id = 'noResultsMessage';
+        noResultsMsg.className = 'no-results-message';
+        noResultsMsg.innerHTML = `
+            <i class="fas fa-search"></i>
+            <h4>No students found</h4>
+            <p>Try adjusting your search terms</p>
+        `;
+        
+        const tableBody = document.querySelector('.ranking-table tbody');
+        if (tableBody) {
+            tableBody.parentNode.insertBefore(noResultsMsg, tableBody.nextSibling);
+        }
+    } else if (!show && noResultsMsg) {
+        noResultsMsg.remove();
+    }
+}
+
+async function handleManualRefresh() {
+    if (isRefreshing) {
+        showNotification('Refresh already in progress', 'warning');
+        return;
+    }
+
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (!refreshBtn) return;
+
+    const oldHTML = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    refreshBtn.disabled = true;
+
+    try {
+        await loadRankingData();
+        showNotification('Rankings updated successfully!', 'success');
+    } catch (error) {
+        console.error('Manual refresh error:', error);
+        showNotification('Failed to refresh rankings', 'danger');
+    } finally {
+        refreshBtn.innerHTML = oldHTML;
+        refreshBtn.disabled = false;
+    }
 }
 
 function setupLogout() {
-    const logoutLinks = document.querySelectorAll('a[href="../login.html"], .logout-btn, .fa-sign-out-alt');
-
-    logoutLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    // Use event delegation for logout links
+    document.addEventListener('click', function(e) {
+        const logoutLink = e.target.closest('a[href="../login.html"], .logout-btn, .fa-sign-out-alt');
+        
+        if (logoutLink) {
             e.preventDefault();
             handleLogout();
-        });
+        }
     });
 }
 
 async function handleLogout() {
     try {
-        await fetch(`${API_BASE_URL}/api/logout`, { 
+        showNotification('Logging out...', 'warning');
+        
+        // Cancel any ongoing requests
+        if (currentRefreshController) {
+            currentRefreshController.abort();
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/logout`, { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            signal: AbortSignal.timeout(5000) // 5 second timeout
         });
+
+        if (!response.ok) {
+            throw new Error(`Logout failed: ${response.status}`);
+        }
+
+        console.log('Logout successful');
     } catch (error) {
-        console.error('Logout API error:', error);
+        if (error.name !== 'TimeoutError') {
+            console.error('Logout API error:', error);
+        }
+        // Continue with client-side logout even if API fails
     } finally {
+        // Always clear client-side data
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
         window.location.href = '../../templates/login.html';
@@ -149,11 +283,35 @@ async function handleLogout() {
 
 // Fetch ranking data from backend
 async function loadRankingData() {
+    if (isRefreshing) {
+        console.log('Refresh already in progress, skipping...');
+        return;
+    }
+
+    isRefreshing = true;
+    
+    // Abort previous request if exists
+    if (currentRefreshController) {
+        currentRefreshController.abort();
+    }
+    
+    currentRefreshController = new AbortController();
+    
     try {
         console.log('Loading ranking data...');
 
-        const res = await fetch(`${API_BASE_URL}/api/rankings`);
-        if (!res.ok) throw new Error(`Failed to load rankings: ${res.status}`);
+        const timeoutController = new AbortController();
+        const timeoutId = setTimeout(() => timeoutController.abort(), 15000); // 15 second timeout
+
+        const res = await fetch(`${API_BASE_URL}/api/rankings`, {
+            signal: currentRefreshController.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
 
         const data = await res.json();
         console.log('Ranking data received:', data);
@@ -171,82 +329,157 @@ async function loadRankingData() {
         const rankings = data.rankings || [];
         const stats = data.stats || {};
 
-        // Find student's data
-        const yourData = rankings.find(s => s.rollNo === yourId || s.id === yourId);
-        const yourRank = yourData ? yourData.rank : '-';
+        // Update statistics display
+        updateStatisticsDisplay(rankings, stats, yourId);
 
-        // Display stats
-        if (document.getElementById('totalStudents')) {
-            document.getElementById('totalStudents').textContent = stats.totalStudents || rankings.length;
-        }
-        if (document.getElementById('yourRank')) {
-            document.getElementById('yourRank').textContent = yourRank;
-        }
-        if (document.getElementById('yourPercentage')) {
-            document.getElementById('yourPercentage').textContent = yourData ? yourData.percentage + '%' : '-';
-        }
-        if (document.getElementById('yourGrade')) {
-            document.getElementById('yourGrade').textContent = yourData ? yourData.grade : '-';
-        }
-
-        // Display table
-        const tbody = document.querySelector('.ranking-table tbody');
-        if (tbody) {
-            if (rankings.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="no-data">
-                            <div class="empty-state">
-                                <i class="fas fa-trophy"></i>
-                                <h3>No Rankings Available</h3>
-                                <p>No student rankings available yet. Please check back later.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = rankings.map(r => `
-                    <tr class="rank-row ${(r.rollNo === yourId || r.id === yourId) ? 'highlight' : ''}">
-                        <td>
-                            ${r.rank === 1 ? '<i class="fas fa-medal medal-gold"></i>' : 
-                              r.rank === 2 ? '<i class="fas fa-medal medal-silver"></i>' : 
-                              r.rank === 3 ? '<i class="fas fa-medal medal-bronze"></i>' : ''}
-                            ${r.rank}
-                        </td>
-                        <td class="student-name">${r.name || 'Unknown'}</td>
-                        <td class="student-roll">${r.rollNo || r.id || 'N/A'}</td>
-                        <td>${r.totalMarks || 0}/500</td>
-                        <td>${r.percentage || 0}%</td>
-                        <td><span class="grade-badge grade-${(r.grade || 'N/A').toLowerCase()}">${r.grade || 'N/A'}</span></td>
-                    </tr>
-                `).join('');
-            }
-        }
+        // Update ranking table
+        updateRankingTable(rankings, yourId);
 
     } catch (err) {
-        console.error('Error loading ranking data:', err);
-        const rankingContainer = document.querySelector('.ranking-container');
-        if (rankingContainer) {
-            rankingContainer.innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Error Loading Rankings</h3>
-                    <p>${err.message}</p>
-                    <p>Please check if the server is running on ${API_BASE_URL}</p>
-                    <button onclick="loadRankingData()" class="retry-btn">
-                        <i class="fas fa-redo"></i> Try Again
-                    </button>
-                </div>
-            `;
-        }
-        showNotification('Failed to load ranking data', 'danger');
+        handleRankingError(err);
+    } finally {
+        isRefreshing = false;
+        currentRefreshController = null;
     }
 }
 
+function updateStatisticsDisplay(rankings, stats, yourId) {
+    // Find student's data
+    const yourData = rankings.find(s => s.rollNo === yourId || s.id === yourId);
+    const yourRank = yourData ? yourData.rank : '-';
+    const yourPercentage = yourData ? yourData.percentage : 0;
+    const yourGrade = yourData ? yourData.grade : '-';
+
+    // Update stats cards safely
+    const totalStudentsEl = document.getElementById('totalStudents');
+    const yourRankEl = document.getElementById('yourRank');
+    const yourPercentageEl = document.getElementById('yourPercentage');
+    const yourGradeEl = document.getElementById('yourGrade');
+
+    if (totalStudentsEl) {
+        totalStudentsEl.textContent = stats.totalStudents || rankings.length;
+    }
+    if (yourRankEl) {
+        yourRankEl.textContent = yourRank;
+    }
+    if (yourPercentageEl) {
+        yourPercentageEl.textContent = yourPercentage ? yourPercentage + '%' : '-';
+    }
+    if (yourGradeEl) {
+        yourGradeEl.textContent = yourGrade;
+        
+        // Update grade badge class
+        yourGradeEl.className = 'grade-badge';
+        if (yourGrade && yourGrade !== '-') {
+            yourGradeEl.classList.add(`grade-${yourGrade.toLowerCase().replace('+', '-plus')}`);
+        }
+    }
+}
+
+function updateRankingTable(rankings, yourId) {
+    const tbody = document.querySelector('.ranking-table tbody');
+    if (!tbody) {
+        console.error('Ranking table body not found');
+        return;
+    }
+
+    if (rankings.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="no-data">
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No Rankings Available</h3>
+                        <p>No student rankings available yet. Please check back later.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = rankings.map(r => {
+            const isCurrentStudent = (r.rollNo === yourId || r.id === yourId);
+            const medalIcon = getMedalIcon(r.rank);
+            const gradeClass = r.grade ? `grade-${r.grade.toLowerCase().replace('+', '-plus')}` : 'grade-n/a';
+            
+            return `
+                <tr class="rank-row ${isCurrentStudent ? 'highlight' : ''}">
+                    <td>
+                        ${medalIcon}
+                        ${r.rank}
+                    </td>
+                    <td class="student-name">${escapeHtml(r.name || 'Unknown')}</td>
+                    <td class="student-roll">${escapeHtml(r.rollNo || r.id || 'N/A')}</td>
+                    <td>${r.totalMarks || 0}/500</td>
+                    <td>${r.percentage || 0}%</td>
+                    <td><span class="grade-badge ${gradeClass}">${escapeHtml(r.grade || 'N/A')}</span></td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
+
+function getMedalIcon(rank) {
+    switch(rank) {
+        case 1: return '<i class="fas fa-medal medal-gold"></i>';
+        case 2: return '<i class="fas fa-medal medal-silver"></i>';
+        case 3: return '<i class="fas fa-medal medal-bronze"></i>';
+        default: return '';
+    }
+}
+
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function handleRankingError(err) {
+    console.error('Error loading ranking data:', err);
+    
+    let userMessage = 'Failed to load ranking data';
+    
+    if (err.name === 'AbortError') {
+        userMessage = 'Request cancelled';
+    } else if (err.name === 'TimeoutError') {
+        userMessage = 'Request timeout - please try again';
+    } else if (err.message.includes('Failed to fetch')) {
+        userMessage = 'Network error - please check your connection';
+    } else if (err.message.includes('HTTP 5')) {
+        userMessage = 'Server error - please try again later';
+    } else if (err.message.includes('HTTP 4')) {
+        userMessage = 'Unable to load rankings - authentication may be required';
+    }
+
+    const rankingContainer = document.querySelector('.ranking-container');
+    if (rankingContainer) {
+        rankingContainer.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Error Loading Rankings</h3>
+                <p>${userMessage}</p>
+                <p>Please check if the server is running on ${API_BASE_URL}</p>
+                <button onclick="loadRankingData()" class="retry-btn">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+    
+    showNotification(userMessage, 'danger');
+}
+
 function showNotification(message, type) {
-    // Remove existing notifications
+    // Remove existing notifications safely
     const existingNotifications = document.querySelectorAll('.student-rank-notification');
-    existingNotifications.forEach(notification => notification.remove());
+    existingNotifications.forEach(notification => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    });
 
     // Create notification element
     const notification = document.createElement('div');
@@ -268,25 +501,47 @@ function showNotification(message, type) {
     `;
 
     // Set background color based on type
-    if (type === 'success') {
-        notification.style.backgroundColor = '#28a745';
-    } else if (type === 'danger') {
-        notification.style.backgroundColor = '#dc3545';
-    } else if (type === 'warning') {
-        notification.style.backgroundColor = '#ffc107';
+    const colors = {
+        success: '#28a745',
+        danger: '#dc3545',
+        warning: '#ffc107',
+        info: '#17a2b8'
+    };
+    
+    notification.style.backgroundColor = colors[type] || colors.info;
+    if (type === 'warning') {
         notification.style.color = '#212529';
-    } else {
-        notification.style.backgroundColor = '#17a2b8';
     }
 
+    const icons = {
+        success: 'check-circle',
+        danger: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+    };
+
     notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
-        ${message}
+        <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+        ${escapeHtml(message)}
     `;
 
     document.body.appendChild(notification);
+    addNotificationAnimations();
 
-    // Add CSS animation if not already added
+    // Remove notification after 4 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 4000);
+}
+
+function addNotificationAnimations() {
     if (!document.querySelector('#rank-notification-animations')) {
         const style = document.createElement('style');
         style.id = 'rank-notification-animations';
@@ -314,22 +569,11 @@ function showNotification(message, type) {
         `;
         document.head.appendChild(style);
     }
-
-    // Remove notification after 4 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 300);
-        }
-    }, 4000);
 }
 
-// Add CSS for medals and grade badges
-if (!document.querySelector('#rank-styles')) {
+function addRankStyles() {
+    if (document.querySelector('#rank-styles')) return;
+    
     const style = document.createElement('style');
     style.id = 'rank-styles';
     style.textContent = `
@@ -355,6 +599,9 @@ if (!document.querySelector('#rank-styles')) {
             border-radius: 12px;
             font-size: 0.8em;
             font-weight: 600;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
         }
         .grade-a-plus { background: #4caf50; color: white; }
         .grade-a { background: #8bc34a; color: white; }
@@ -362,7 +609,7 @@ if (!document.querySelector('#rank-styles')) {
         .grade-c { background: #ff9800; color: white; }
         .grade-d { background: #f44336; color: white; }
         .grade-f { background: #d32f2f; color: white; }
-        .grade-n/a { background: #9e9e9e; color: white; }
+        .grade-n-a { background: #9e9e9e; color: white; }
         
         .no-data {
             text-align: center;
@@ -380,6 +627,7 @@ if (!document.querySelector('#rank-styles')) {
         }
         .empty-state p {
             color: #6c757d;
+            line-height: 1.5;
         }
         
         .error-message {
@@ -394,10 +642,12 @@ if (!document.querySelector('#rank-styles')) {
         }
         .error-message h3 {
             margin-bottom: 10px;
+            color: #dc3545;
         }
         .error-message p {
             margin: 10px 0;
             line-height: 1.5;
+            color: #6c757d;
         }
         .retry-btn {
             margin-top: 15px;
@@ -408,6 +658,7 @@ if (!document.querySelector('#rank-styles')) {
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.9em;
+            transition: background-color 0.2s;
         }
         .retry-btn:hover {
             background: #c82333;
@@ -426,6 +677,10 @@ if (!document.querySelector('#rank-styles')) {
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
             border-left: 4px solid #007bff;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
         }
         .stat-icon {
             font-size: 2em;
@@ -442,23 +697,56 @@ if (!document.querySelector('#rank-styles')) {
             color: #6c757d;
             font-weight: 500;
         }
+        
+        .no-results-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .no-results-message i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .no-results-message h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
     `;
     document.head.appendChild(style);
 }
 
-// Add network status monitoring
+// Network status monitoring
 window.addEventListener('online', function() {
     console.log('Network connection restored');
     showNotification('Network connection restored', 'success');
+    // Auto-retry loading data when connection is restored
+    if (!isRefreshing) {
+        setTimeout(() => loadRankingData(), 2000);
+    }
 });
 
 window.addEventListener('offline', function() {
     console.log('Network connection lost');
-    showNotification('Network connection lost', 'warning');
+    showNotification('Network connection lost - some features may not work', 'warning');
 });
 
-// Auto-refresh rankings every 60 seconds
+// Auto-refresh rankings every 60 seconds with safety checks
 setInterval(() => {
-    console.log('Auto-refreshing rankings...');
-    loadRankingData();
+    if (!isRefreshing && navigator.onLine) {
+        console.log('Auto-refreshing rankings...');
+        loadRankingData();
+    }
 }, 60000);
+
+// Add AbortSignal timeout polyfill for older browsers
+if (!AbortSignal.timeout) {
+    AbortSignal.timeout = function(ms) {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), ms);
+        return controller.signal;
+    };
+}
