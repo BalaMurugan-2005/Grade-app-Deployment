@@ -989,9 +989,10 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 // Teacher Profile Page
-app.get('/teacher/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
+
 // Handle 404 - Page not found
 app.use((req, res) => {
     res.status(404).send(`
