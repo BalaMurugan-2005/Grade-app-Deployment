@@ -128,7 +128,7 @@ async function handleLogout() {
         sessionStorage.removeItem('isAuthenticated');
         
         // Redirect to login
-        window.location.href = '../frontend/templates/login.html';
+        window.location.href = '../../templates/login.html';
     }
 }
 
@@ -138,7 +138,7 @@ function redirectToLogin() {
     sessionStorage.removeItem('isAuthenticated');
     
     // Redirect to login
-    window.location.href = '../frontend/templates/login.html';
+    window.location.href = '../../templates/login.html';
 }
 
 function updateUserInfo(user) {
