@@ -105,12 +105,7 @@ function initializeApp() {
         });
     }
 
-    // Dashboard redirect - Fixed to go to actual dashboard
-    if (dashboardBtn) {
-        dashboardBtn.addEventListener('click', () => {
-            window.location.href = '../../templates/student_dashboard.html';
-        });
-    }
+   
 
     // Setup logout functionality
     setupLogout();
