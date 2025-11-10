@@ -85,7 +85,7 @@ app.post('/api/login', async (req, res) => {
         }
 
         let userData, user;
-        
+
         if (userType === 'student') {
             // Check student credentials from Student.json
             userData = await readJSONFile(studentDataPath);
@@ -110,7 +110,7 @@ app.post('/api/login', async (req, res) => {
 
         // Return user data without password
         const { password: _, ...userDataWithoutPassword } = user;
-        
+
         res.json({
             success: true,
             message: 'Login successful',
@@ -134,13 +134,13 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/check-auth', async (req, res) => {
     try {
         const { userType, userId } = req.query;
-        
+
         if (!userType || !userId) {
             return res.json({ authenticated: false });
         }
 
         let user;
-        
+
         if (userType === 'student') {
             const studentData = await readJSONFile(studentDataPath);
             const students = studentData.students || [];
@@ -156,7 +156,7 @@ app.get('/api/check-auth', async (req, res) => {
 
         // Return user data without password
         const { password: _, ...userData } = user;
-        
+
         res.json({
             authenticated: true,
             userType: userType,
@@ -204,7 +204,7 @@ app.get('/api/student/:id/profile', async (req, res) => {
             email: student.email,
             username: student.username,
             rollNo: student.rollNo,
-            
+
             // Academic Information
             class: student.class,
             section: student.section,
@@ -212,16 +212,16 @@ app.get('/api/student/:id/profile', async (req, res) => {
             attendance: student.attendance,
             rank: student.rank,
             grade: student.grade,
-            
+
             // Marks
             marks: student.marks || {},
             totalMarks: student.totalMarks,
             percentage: student.percentage,
             status: student.status,
-            
+
             // Badges
             badges: student.badges || [],
-            
+
             // System
             isMarked: student.isMarked || false
         };
@@ -360,10 +360,10 @@ app.get('/api/debug/teacher/:id/profile', async (req, res) => {
     try {
         const teacherId = req.params.id;
         console.log('🔍 Debug: Fetching teacher profile for ID:', teacherId);
-        
+
         const teachers = await readJSONFile(teacherDataPath);
         console.log('🔍 Debug: All teachers:', teachers);
-        
+
         const teacher = teachers.find(t => t.id === teacherId);
         console.log('🔍 Debug: Found teacher:', teacher);
 
@@ -375,11 +375,11 @@ app.get('/api/debug/teacher/:id/profile', async (req, res) => {
         // Get student data for statistics
         const studentData = await readJSONFile(studentDataPath);
         const students = studentData.students || [];
-        
+
         // Calculate basic statistics
         const totalStudents = students.length;
         const markedStudents = students.filter(s => s.isMarked).length;
-        
+
         const profileData = {
             id: teacher.id,
             name: teacher.name,
@@ -418,13 +418,13 @@ app.get('/api/debug/teacher/:id/profile', async (req, res) => {
 app.get('/api/test-teacher-profile', async (req, res) => {
     try {
         console.log('🔍 Testing teacher profile API...');
-        
+
         const teachers = await readJSONFile(teacherDataPath);
         console.log('📊 Teachers data:', teachers);
-        
+
         const studentData = await readJSONFile(studentDataPath);
         console.log('📊 Students count:', studentData.students ? studentData.students.length : 0);
-        
+
         res.json({
             success: true,
             message: 'Teacher profile API is working',
@@ -446,24 +446,24 @@ app.get('/api/test-teacher-profile', async (req, res) => {
 app.get('/api/rankings', async (req, res) => {
     try {
         const studentData = await readJSONFile(studentDataPath);
-        
+
         // Get all marked students
         const markedStudents = (studentData.students || [])
             .filter(student => student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined);
-        
+
         // Separate passed and failed students
         const passedStudents = markedStudents.filter(student => student.status === 'Pass' || student.percentage >= 40);
         const failedStudents = markedStudents.filter(student => student.status === 'Fail' || student.percentage < 40);
-        
+
         // Sort passed students by total marks descending
         passedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
-        
+
         // Sort failed students by total marks descending (so higher failing marks come first)
         failedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
-        
+
         // Combine passed students first, then failed students
         const allRankedStudents = [...passedStudents, ...failedStudents];
-        
+
         // Assign ranks
         const rankedStudents = allRankedStudents.map((student, index) => ({
             rank: index + 1,
@@ -520,22 +520,22 @@ app.get('/api/teacher/:id/profile', async (req, res) => {
         // Get teacher statistics from student data
         const studentData = await readJSONFile(studentDataPath);
         const students = studentData.students || [];
-        
+
         // Calculate teacher statistics
         const totalStudents = students.length;
         const markedStudents = students.filter(s => s.isMarked).length;
         const studentsWithMarks = students.filter(s => s.isMarked && s.totalMarks);
-        
+
         // Calculate class averages if marks are available
         let classAverage = 0;
         let passPercentage = 0;
         let topPerformer = null;
-        
+
         if (studentsWithMarks.length > 0) {
             const totalMarks = studentsWithMarks.reduce((sum, student) => sum + student.totalMarks, 0);
             classAverage = totalMarks / studentsWithMarks.length;
             passPercentage = (studentsWithMarks.filter(s => s.status === 'Pass').length / studentsWithMarks.length) * 100;
-            
+
             // Find top performer
             topPerformer = studentsWithMarks.reduce((top, student) => 
                 student.totalMarks > (top?.totalMarks || 0) ? student : top, null
@@ -549,14 +549,14 @@ app.get('/api/teacher/:id/profile', async (req, res) => {
             name: teacher.name,
             email: teacher.email,
             username: teacher.username,
-            
+
             // Professional Information (from your enhanced data)
             designation: teacher.designation || getDesignation(teacher.name),
             department: teacher.department || "Academic Department",
             joinDate: teacher.joinDate || "2023-08-01",
             experience: teacher.experience || "2+ years",
             subjects: teacher.subjects || [],
-            
+
             // Teaching Statistics (calculated from student data)
             statistics: {
                 totalStudents: totalStudents,
@@ -568,14 +568,14 @@ app.get('/api/teacher/:id/profile', async (req, res) => {
                 topPerformer: topPerformer ? topPerformer.name : 'N/A',
                 subjectsHandled: teacher.subjects || ["All Subjects"]
             },
-            
+
             // Contact Information (from your enhanced data)
             contact: teacher.contact || {
                 email: teacher.email,
                 phone: "+91 98765 43210",
                 address: "GradeMaster Institution, Chennai"
             },
-            
+
             // Badges based on performance (calculated dynamically)
             badges: generateTeacherBadges(markedStudents, passPercentage, totalStudents)
         };
@@ -721,7 +721,7 @@ app.get('/api/students', async (req, res) => {
             grade: student.grade,
             status: student.status
         }));
-        
+
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
@@ -778,20 +778,20 @@ app.post('/api/student/:id/marks', async (req, res) => {
 
         // Recalculate ranks for all marked students
         const markedStudents = students.filter(s => s.isMarked && s.totalMarks !== null && s.totalMarks !== undefined);
-        
+
         // Separate passed and failed students
         const passedStudents = markedStudents.filter(student => student.status === 'Pass' || student.percentage >= 40);
         const failedStudents = markedStudents.filter(student => student.status === 'Fail' || student.percentage < 40);
-        
+
         // Sort passed students by total marks descending
         passedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
-        
+
         // Sort failed students by total marks descending
         failedStudents.sort((a, b) => b.totalMarks - a.totalMarks);
-        
+
         // Combine passed students first, then failed students
         const allRankedStudents = [...passedStudents, ...failedStudents];
-        
+
         // Assign ranks based on combined sorted position
         allRankedStudents.forEach((student, index) => {
             const studentIndex = students.findIndex(s => s.id === student.id);
@@ -828,7 +828,7 @@ app.get('/api/statistics', async (req, res) => {
         const studentData = await readJSONFile(studentDataPath);
         const students = studentData.students || [];
         const studentsWithMarks = students.filter(student => student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined);
-        
+
         if (studentsWithMarks.length === 0) {
             return res.json({
                 totalStudents: students.length,
@@ -840,14 +840,14 @@ app.get('/api/statistics', async (req, res) => {
                 failedStudents: 0
             });
         }
-        
+
         // Calculate statistics
         const totals = studentsWithMarks.map(student => student.totalMarks);
         const classAverage = totals.reduce((sum, total) => sum + total, 0) / totals.length;
         const topScore = Math.max(...totals);
         const passedStudents = studentsWithMarks.filter(student => student.status === 'Pass' || student.percentage >= 40).length;
         const passPercentage = (passedStudents / studentsWithMarks.length) * 100;
-        
+
         res.json({
             totalStudents: students.length,
             studentsWithMarks: studentsWithMarks.length,
@@ -909,19 +909,19 @@ function getDesignation(teacherName) {
 
 function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
     const badges = [];
-    
+
     // Efficiency badges
     if (markedStudents >= 15) {
         badges.push('efficient-evaluator');
     } else if (markedStudents >= 10) {
         badges.push('active-evaluator');
     }
-    
+
     // Dedication badges
     if (markedStudents >= totalStudents * 0.8) { // 80% of students evaluated
         badges.push('dedicated-educator');
     }
-    
+
     // Success rate badges
     if (passPercentage >= 90) {
         badges.push('academic-excellence');
@@ -930,17 +930,17 @@ function generateTeacherBadges(markedStudents, passPercentage, totalStudents) {
     } else if (passPercentage >= 70) {
         badges.push('consistent-performer');
     }
-    
+
     // Activity badge
     if (markedStudents > 0) {
         badges.push('active-teacher');
     }
-    
+
     // Default badge if no specific ones
     if (badges.length === 0) {
         badges.push('new-educator');
     }
-    
+
     return badges;
 }
 // ===============================
@@ -981,7 +981,7 @@ app.get('/teacher/rankings', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../templates/login.html'));
+    res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
 
 // Root route - redirect to login
