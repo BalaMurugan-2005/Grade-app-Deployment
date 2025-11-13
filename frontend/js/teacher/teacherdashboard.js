@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Handle logout link separately
+            // ✅ CORRECTED: Use the same file path as studentdashboard.js
             if (this.getAttribute('href') === '/frontend/templates/login.html' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
@@ -110,6 +110,7 @@ async function checkAuthentication() {
 }
 
 function setupLogout() {
+    // ✅ CORRECTED: Use the same selector as studentdashboard.js
     const logoutLinks = document.querySelectorAll('a[href="/frontend/templates/login.html"], .logout-btn, .fa-sign-out-alt');
 
     logoutLinks.forEach(link => {
@@ -135,7 +136,7 @@ async function handleLogout() {
         localStorage.removeItem('currentSession');
         sessionStorage.removeItem('isAuthenticated');
 
-        // Redirect to login
+        // ✅ CORRECTED: Redirect to the same login path
         window.location.href = '/frontend/templates/login.html';
     }
 }
@@ -145,7 +146,7 @@ function redirectToLogin() {
     localStorage.removeItem('currentSession');
     sessionStorage.removeItem('isAuthenticated');
 
-    // Redirect to login
+    // ✅ CORRECTED: Redirect to the same login path
     window.location.href = '/frontend/templates/login.html';
 }
 
